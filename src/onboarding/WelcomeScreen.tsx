@@ -85,7 +85,7 @@ export function WelcomeScreen({
               Elevate
             </h1>
             <p style={{ margin: 0, fontSize: 18, opacity: 0.8, lineHeight: 1.7 }}>
-              The premium career coaching experience built to help high performers move faster.
+              The career platform that gets you where you want to go
             </p>
           </div>
 

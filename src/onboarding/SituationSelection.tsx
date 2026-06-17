@@ -25,7 +25,7 @@ const SITUATION_COLORS: Record<SituationType, string> = {
   future_proof: '#6366f1',
 };
 
-export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext: () => void; onHome: () => void; onBack: () => void; onReset?: () => void }) {
+export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext: (value: SituationType) => void; onHome: () => void; onBack: () => void; onReset?: () => void }) {
   const theme = useFiasTheme();
   const [selected, setSelected] = usePersistentState<SituationType | null>('situation-type', null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -265,7 +265,9 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
           >
             <button
               type="button"
-              onClick={onNext}
+              onClick={() => {
+                if (selected) onNext(selected);
+              }}
               style={{
                 width: '100%',
                 height: '40px',

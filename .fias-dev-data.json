@@ -1,15 +1,38 @@
 {
   "storage": {
-    "__state/onboarding-step": "2",
+    "__state/gdpr-consent": "true",
+    "__state/onboarding-step": "3",
     "__state/onboarding-complete": "false",
     "__state/ai-summary": "\"\"",
-    "__state/user-name": "\"\"",
-    "__state/situation-type": "\"earn_more\"",
+    "__state/user-name": "\"jona\"",
+    "__state/final-selection": "\"\"",
     "__state/final-free-text": "\"\"",
-    "__state/path-answers": "{}"
+    "__state/situation-type": "\"job_hunting\"",
+    "__state/user-email": "\"\"",
+    "__state/path-answers": "{\"job_hunting\":{\"0\":\"more_interviews\"}}"
   },
-  "dataCollections": {},
-  "dataDocuments": {},
+  "dataCollections": {
+    "profiles": {
+      "name": "profiles",
+      "userScope": "user",
+      "createdAt": "2026-06-17T10:49:18.198Z"
+    },
+    "applications": {
+      "name": "applications",
+      "userScope": "user",
+      "createdAt": "2026-06-17T10:49:18.290Z"
+    },
+    "vault": {
+      "name": "vault",
+      "userScope": "user",
+      "createdAt": "2026-06-17T10:49:18.520Z"
+    }
+  },
+  "dataDocuments": {
+    "profiles": {},
+    "applications": {},
+    "vault": {}
+  },
   "vaultDocuments": {},
   "storePurchases": []
 }

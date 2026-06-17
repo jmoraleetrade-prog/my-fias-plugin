@@ -13,6 +13,7 @@ import { DailyCheckInSetup } from './onboarding/DailyCheckInSetup';
 import { EmailCapture } from './onboarding/EmailCapture';
 import { Dashboard } from './dashboard/Dashboard';
 import { COLLECTIONS, initCollections, logError } from './utils/aiHelpers';
+import type { SituationType } from './onboarding/onboardingData';
 
 // Step indices for the onboarding flow (after the GDPR gate):
 // 0 Welcome · 1 Situation · 2 Name · 3 Path · 4 Final · 5 AI Loading
@@ -137,7 +138,19 @@ export function App() {
         />
       );
     case 1:
-      return <SituationSelection onNext={() => goTo(2)} onHome={goHome} onBack={() => goTo(0)} onReset={resetOnboarding} />;
+      return (
+        <SituationSelection
+          onNext={(value) => {
+            // Keep App's own copy in sync — usePersistentState instances don't
+            // share state, so without this the case 3 guard sees a stale null.
+            setSituationType(value);
+            goTo(2);
+          }}
+          onHome={goHome}
+          onBack={() => goTo(0)}
+          onReset={resetOnboarding}
+        />
+      );
     case 2:
       return <NameCapture onNext={() => goTo(3)} onHome={goHome} onBack={() => goTo(1)} onReset={resetOnboarding} />;
     case 3:
@@ -147,7 +160,7 @@ export function App() {
       }
       return (
         <PathQuestions
-          situationType={situationType as any}
+          situationType={situationType as SituationType}
           onBack={() => goTo(2)}
           onNext={() => goTo(4)}
           onHome={goHome}

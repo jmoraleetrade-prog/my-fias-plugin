@@ -1,182 +1,158 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEntityInvocation, useFiasTheme } from '@fias/arche-sdk';
-import { BRAND } from './onboardingData';
-import { OnboardingShell } from './OnboardingShell';
+import { MASTER_PERSONA } from '../utils/aiHelpers';
 
-const MASTER_PERSONA = `You are Elevate’s career intelligence engine. You read the user's goals and situation with respect, focus on clarity, and provide a concise, personalized career insight. Use supportive, confident language and avoid generic templates. Highlight the user's priority, the strongest next action, and one immediate confidence-building idea.`;
-
-export function AISummaryLoading({ name, onComplete, onHome, onBack, onReset }: { name: string; onComplete: (summary: string) => void; onHome: () => void; onBack: () => void; onReset?: () => void }) {
+export function AISummaryLoading({
+  name,
+  onComplete,
+  onHome,
+  onBack,
+}: {
+  name: string;
+  onComplete: (summary: string) => void;
+  onHome: () => void;
+  onBack: () => void;
+  onReset?: () => void;
+}) {
   const theme = useFiasTheme();
-  const { invoke, isLoading, streamingText, result } = useEntityInvocation();
-  const [stage, setStage] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  const { invoke } = useEntityInvocation();
 
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setStage(1), 900),
-      setTimeout(() => setStage(2), 1800),
-      setTimeout(() => setStage(3), 2700),
-    ];
-    return () => timers.forEach(clearTimeout);
-  }, []);
+  const firstName = (name || '').trim().split(/\s+/)[0] || 'there';
+  const messages = [
+    `Thanks ${firstName}.`,
+    'Give me a moment…',
+    "Reading everything you've told me…",
+    'This is specific to you — not a template.',
+    "Here's what I see…",
+  ];
 
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [aiDone, setAiDone] = useState(false);
+  const summaryRef = useRef('');
+  const completedRef = useRef(false);
+  const invokedRef = useRef(false);
+
+  // Keep the latest onComplete without making it an effect dependency, so a
+  // parent re-render during the hand-off window can't cancel the transition.
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
+  // Kick off the AI summary exactly once.
   useEffect(() => {
+    if (invokedRef.current) return;
+    invokedRef.current = true;
     invoke({
       entityId: { capability: 'text-standard' },
-      input: `Summarize the onboarding data for ${name} in a way that feels specific, grounded, and ready to action.`,
+      input: `Summarize the onboarding data for ${firstName} in a way that feels specific, grounded, and ready to action.`,
       systemPrompt: MASTER_PERSONA,
     })
-      .then((result) => onComplete(result?.output ?? ''))
-      .catch(() => onComplete(''));
-  }, [invoke, name, onComplete]);
+      .then((result) => {
+        summaryRef.current = result?.output ?? '';
+      })
+      .catch(() => {
+        summaryRef.current = '';
+      })
+      .finally(() => setAiDone(true));
+  }, [invoke, firstName]);
+
+  // Reveal one message every 2 seconds, stopping at the last.
+  useEffect(() => {
+    if (messageIndex >= messages.length - 1) return;
+    const timer = setTimeout(() => setMessageIndex((index) => index + 1), 2000);
+    return () => clearTimeout(timer);
+  }, [messageIndex, messages.length]);
+
+  // Hand off only after the full sequence has played AND the AI has resolved.
+  useEffect(() => {
+    if (completedRef.current) return;
+    if (aiDone && messageIndex >= messages.length - 1) {
+      completedRef.current = true;
+      const timer = setTimeout(() => onCompleteRef.current(summaryRef.current), 700);
+      return () => clearTimeout(timer);
+    }
+  }, [aiDone, messageIndex, messages.length]);
 
   if (!theme) return null;
 
   return (
-    <OnboardingShell onHome={onHome} onBack={onBack} onReset={onReset}>
-      <div
+    <div
+      style={{
+        minHeight: '100vh',
+        width: '100%',
+        background: '#0F2554',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 28,
+        padding: 24,
+        fontFamily: theme.fonts.body,
+        color: '#ffffff',
+        position: 'relative',
+      }}
+    >
+      <style>
+        {`@keyframes aisPulse { 0%, 100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.18); opacity: 1; } }
+          @keyframes aisFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 0.8; transform: translateY(0); } }`}
+      </style>
+
+      {/* Back affordance (quiet, top-left) */}
+      <button
+        type="button"
+        onClick={onBack}
         style={{
-          minHeight: '100vh',
-          width: '100%',
-          padding: 0,
-          background: '#0F2554',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontFamily: theme.fonts.body,
+          position: 'absolute',
+          top: 16,
+          left: 16,
+          background: 'rgba(255,255,255,0.1)',
+          border: '1px solid rgba(255,255,255,0.25)',
+          borderRadius: 50,
+          padding: '6px 14px',
+          fontSize: 13,
           color: '#ffffff',
-          position: 'relative',
-          overflow: 'hidden',
+          cursor: 'pointer',
         }}
       >
-        <style>
-          {`@keyframes pulse { from { transform: scale(1); opacity: 0.95; } to { transform: scale(1.05); opacity: 1; } }
-            @keyframes floatUp { 0% { transform: translateY(10px); opacity: 0; } 25% { opacity: 0.12; } 100% { transform: translateY(-180px); opacity: 0; } }
-            @keyframes fadeMessage { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-          `}
-        </style>
+        ← Back
+      </button>
+      <button
+        type="button"
+        onClick={onHome}
+        aria-label="Home"
+        style={{
+          position: 'absolute',
+          top: 14,
+          right: 16,
+          background: 'transparent',
+          border: 'none',
+          color: '#ffffff',
+          fontSize: 20,
+          cursor: 'pointer',
+        }}
+      >
+        🏠
+      </button>
 
-        {[...Array(8)].map((_, index) => {
-          const size = 6 + (index % 3) * 3;
-          const left = 10 + (index * 11) % 80;
-          const delay = (index % 4) * 0.8;
-          const duration = 6 + (index % 3) * 1.5;
-          return (
-            <div
-              key={index}
-              style={{
-                position: 'absolute',
-                left: `${left}%`,
-                bottom: '-10%',
-                width: size,
-                height: size,
-                borderRadius: '50%',
-                background: 'rgba(255,255,255,0.18)',
-                filter: 'blur(1px)',
-                animation: `floatUp ${duration}s ease-in ${delay}s infinite`,
-              }}
-            />
-          );
-        })}
-
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'linear-gradient(180deg, rgba(15,37,84,0.55) 0%, rgba(15,37,84,0.95) 100%)',
-            pointerEvents: 'none',
-          }}
-        />
-
-        <div
-          style={{
-            position: 'relative',
-            width: '100%',
-            maxWidth: '38rem',
-            padding: '28px 22px',
-            borderRadius: 32,
-            background: 'rgba(15,37,84,0.9)',
-            boxShadow: '0 40px 120px rgba(0,0,0,0.35)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            textAlign: 'center',
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'opacity 320ms ease, transform 320ms ease',
-          }}
-        >
-          <div
-            style={{
-              width: 96,
-              height: 96,
-              margin: '0 auto',
-              borderRadius: '50%',
-              background: 'rgba(255,255,255,0.08)',
-              display: 'grid',
-              placeItems: 'center',
-              boxShadow: '0 0 0 0 rgba(255,255,255,0.1)',
-              animation: 'pulse 1.7s ease-in-out infinite alternate',
-              marginBottom: 20,
-              fontSize: 42,
-            }}
-          >
-            🚀
-          </div>
-
-          <h1 style={{ margin: 0, fontSize: 32, lineHeight: 1.05, color: '#ffffff', fontWeight: 800 }}>
-            Elevate is crafting your personalized plan.
-          </h1>
-
-          <div style={{ display: 'grid', gap: 11, marginTop: 20 }}>
-            <p
-              style={{
-                margin: 0,
-                opacity: stage >= 1 ? 1 : 0.2,
-                animation: stage >= 1 ? 'fadeMessage 0.45s ease forwards' : undefined,
-                transition: 'opacity 300ms ease',
-              }}
-            >
-              Reading your goals and situation.
-            </p>
-            <p
-              style={{
-                margin: 0,
-                opacity: stage >= 2 ? 1 : 0.2,
-                animation: stage >= 2 ? 'fadeMessage 0.45s ease forwards' : undefined,
-                transition: 'opacity 300ms ease',
-              }}
-            >
-              Identifying the strongest next move.
-            </p>
-            <p
-              style={{
-                margin: 0,
-                opacity: stage >= 3 ? 1 : 0.2,
-                animation: stage >= 3 ? 'fadeMessage 0.45s ease forwards' : undefined,
-                transition: 'opacity 300ms ease',
-              }}
-            >
-              Preparing your premium career summary.
-            </p>
-          </div>
-
-          <div
-            style={{
-              marginTop: 32,
-              minHeight: '120px',
-              borderRadius: 24,
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.14)',
-              padding: '18px 20px',
-              textAlign: 'left',
-              fontSize: 16,
-              lineHeight: 1.7,
-              color: '#F8FAFF',
-            }}
-          >
-            {isLoading ? streamingText || 'Thinking…' : result?.output || 'Almost there...'}
-          </div>
-        </div>
+      <div style={{ fontSize: 48, lineHeight: 1, animation: 'aisPulse 1.4s ease-in-out infinite' }} aria-hidden>
+        ⚡
       </div>
-    </OnboardingShell>
+
+      <p
+        key={messageIndex}
+        style={{
+          margin: 0,
+          fontSize: 18,
+          color: '#ffffff',
+          opacity: 0.8,
+          textAlign: 'center',
+          maxWidth: 280,
+          lineHeight: 1.6,
+          animation: 'aisFade 0.5s ease forwards',
+        }}
+        aria-live="polite"
+      >
+        {messages[messageIndex]}
+      </p>
+    </div>
   );
 }
