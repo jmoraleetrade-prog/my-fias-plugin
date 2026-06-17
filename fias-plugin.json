@@ -1,0 +1,12 @@
+{
+  "name": "elevate-career",
+  "version": "1.0.0",
+  "description": "The career platform that gets you where you want to go",
+  "main": "src/index.tsx",
+  "archeType": "tool",
+  "tags": ["career", "jobs", "cv"],
+  "pricing": { "model": "free" },
+  "permissions": ["theme:read", "entities:invoke", "data:store", "storage:sandbox", "store:purchase"],
+  "isFullScreen": true,
+  "sdk": "^2.0.0"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "my-fias-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "vite & sleep 2 && fias-dev",
+    "dev": "vite",
+    "build": "vite build",
+    "validate": "tsc --noEmit",
+    "dev:harness": "fias-dev",
+    "submit": "fias-dev submit"
+  },
+  "dependencies": {
+    "@fias/arche-sdk": "^2.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@fias/plugin-dev-harness": "^1.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^6.0.0"
+  }
+}

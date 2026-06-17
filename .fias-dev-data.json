@@ -1,0 +1,15 @@
+{
+  "storage": {
+    "__state/onboarding-step": "1",
+    "__state/onboarding-complete": "false",
+    "__state/ai-summary": "\"\"",
+    "__state/user-name": "\"Jona\"",
+    "__state/situation-type": "\"earn_more\"",
+    "__state/path-answers": "{}",
+    "__state/final-free-text": "\"\""
+  },
+  "dataCollections": {},
+  "dataDocuments": {},
+  "vaultDocuments": {},
+  "storePurchases": []
+}
