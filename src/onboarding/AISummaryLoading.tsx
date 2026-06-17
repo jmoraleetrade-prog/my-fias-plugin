@@ -93,7 +93,7 @@ export function AISummaryLoading({ name, onComplete, onHome, onBack, onReset }: 
             position: 'relative',
             width: '100%',
             maxWidth: '38rem',
-            padding: '40px 32px',
+            padding: '28px 22px',
             borderRadius: 32,
             background: 'rgba(15,37,84,0.9)',
             boxShadow: '0 40px 120px rgba(0,0,0,0.35)',
@@ -115,7 +115,7 @@ export function AISummaryLoading({ name, onComplete, onHome, onBack, onReset }: 
               placeItems: 'center',
               boxShadow: '0 0 0 0 rgba(255,255,255,0.1)',
               animation: 'pulse 1.7s ease-in-out infinite alternate',
-              marginBottom: 28,
+              marginBottom: 20,
               fontSize: 42,
             }}
           >
@@ -126,7 +126,7 @@ export function AISummaryLoading({ name, onComplete, onHome, onBack, onReset }: 
             Elevate is crafting your personalized plan.
           </h1>
 
-          <div style={{ display: 'grid', gap: 16, marginTop: 28 }}>
+          <div style={{ display: 'grid', gap: 11, marginTop: 20 }}>
             <p
               style={{
                 margin: 0,

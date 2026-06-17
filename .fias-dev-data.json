@@ -1,12 +1,12 @@
 {
   "storage": {
-    "__state/onboarding-step": "1",
+    "__state/onboarding-step": "2",
     "__state/onboarding-complete": "false",
     "__state/ai-summary": "\"\"",
-    "__state/user-name": "\"Jona\"",
+    "__state/user-name": "\"\"",
     "__state/situation-type": "\"earn_more\"",
-    "__state/path-answers": "{}",
-    "__state/final-free-text": "\"\""
+    "__state/final-free-text": "\"\"",
+    "__state/path-answers": "{}"
   },
   "dataCollections": {},
   "dataDocuments": {},

@@ -118,9 +118,9 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
         <div
           style={{
             height: '70px',
-            paddingLeft: '20px',
-            paddingRight: '20px',
-            paddingTop: '16px',
+            paddingLeft: '14px',
+            paddingRight: '14px',
+            paddingTop: '11px',
             paddingBottom: '0',
             display: 'flex',
             flexDirection: 'column',
@@ -137,7 +137,7 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
               lineHeight: 1.15,
               color: '#0F172A',
               fontWeight: 800,
-              paddingBottom: '3px',
+              paddingBottom: '2px',
             }}
           >
             Which of these situations sounds most like you?
@@ -158,9 +158,9 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
         <div
           style={{
             flex: 1,
-            paddingLeft: '20px',
-            paddingRight: '20px',
-            paddingTop: '12px',
+            paddingLeft: '14px',
+            paddingRight: '14px',
+            paddingTop: '8px',
             paddingBottom: '0',
             display: 'flex',
             justifyContent: 'center',
@@ -172,7 +172,7 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
             className="situation-grid"
             style={{
               display: 'grid',
-              gap: '8px',
+              gap: '6px',
               width: '100%',
               maxWidth: '92rem',
               maxHeight: 'fit-content',
@@ -194,7 +194,7 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
                   style={{
                     width: '100%',
                     height: '80px',
-                    padding: '16px 8px',
+                    padding: '11px 6px',
                     cursor: 'pointer',
                     fontFamily: theme.fonts.body,
                     display: 'flex',
@@ -220,7 +220,7 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '24px',
-                      marginBottom: '8px',
+                      marginBottom: '6px',
                     }}
                   >
                     {SITUATION_EMOJIS[option.value]}
@@ -251,10 +251,10 @@ export function SituationSelection({ onNext, onHome, onBack, onReset }: { onNext
               right: 0,
               bottom: 0,
               height: '60px',
-              paddingLeft: '20px',
-              paddingRight: '20px',
-              paddingTop: '8px',
-              paddingBottom: '12px',
+              paddingLeft: '14px',
+              paddingRight: '14px',
+              paddingTop: '6px',
+              paddingBottom: '8px',
               backgroundColor: 'rgba(248,250,252,0.95)',
               backdropFilter: 'blur(8px)',
               borderTop: '1px solid rgba(226,232,240,0.5)',

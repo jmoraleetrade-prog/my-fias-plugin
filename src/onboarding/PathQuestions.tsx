@@ -102,7 +102,7 @@ export function PathQuestions({
             transition: 'opacity 320ms ease, transform 320ms ease',
           }}
         >
-          <div style={{ marginBottom: theme.spacing.md, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: theme.spacing.sm }}>
+          <div style={{ marginBottom: `calc(${theme.spacing.md} * 0.7)`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: theme.spacing.sm }}>
             <button
               type="button"
               onClick={handleBack}
@@ -140,7 +140,7 @@ export function PathQuestions({
               borderRadius: 24,
               background: '#ffffff',
               boxShadow: '0 20px 60px rgba(15,23,42,0.08)',
-              padding: '32px',
+              padding: '22px',
             }}
           >
             <h2
@@ -160,8 +160,8 @@ export function PathQuestions({
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                gap: 20,
-                marginTop: 28,
+                gap: 14,
+                marginTop: 20,
               }}
             >
               {currentQuestion.options.map((option) => {
@@ -175,7 +175,7 @@ export function PathQuestions({
                     style={{
                       width: '100%',
                       minHeight: '10.5rem',
-                      padding: '24px',
+                      padding: '17px',
                       borderRadius: 24,
                       border: '1px solid #E5E7EB',
                       background: isActive ? 'linear-gradient(135deg, #0AAFAA, #0891B2)' : '#ffffff',

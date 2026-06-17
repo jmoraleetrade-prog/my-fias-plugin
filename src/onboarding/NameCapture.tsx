@@ -55,7 +55,7 @@ export function NameCapture({ onNext, onHome, onBack, onReset }: { onNext: () =>
           style={{
             width: '100%',
             maxWidth: '44rem',
-            padding: '46px',
+            padding: '32px',
             borderRadius: 24,
             background: '#ffffff',
             boxShadow: '0 30px 80px rgba(15,23,42,0.08)',
@@ -65,7 +65,7 @@ export function NameCapture({ onNext, onHome, onBack, onReset }: { onNext: () =>
             transition: 'opacity 320ms ease, transform 320ms ease',
           }}
         >
-          <div style={{ display: 'grid', gap: '28px' }}>
+          <div style={{ display: 'grid', gap: '20px' }}>
             <div>
               <h1
                 style={{
@@ -79,7 +79,7 @@ export function NameCapture({ onNext, onHome, onBack, onReset }: { onNext: () =>
               >
                 What should we call you?
               </h1>
-              <p style={{ margin: '16px 0 0', color: '#475569', fontSize: 18, lineHeight: 1.75 }}>
+              <p style={{ margin: '11px 0 0', color: '#475569', fontSize: 18, lineHeight: 1.75 }}>
                 Share your first name so Elevate can personalize your journey.
               </p>
             </div>
@@ -90,7 +90,7 @@ export function NameCapture({ onNext, onHome, onBack, onReset }: { onNext: () =>
               placeholder="Enter your first name"
               style={{
                 width: '100%',
-                padding: '16px 20px',
+                padding: '11px 14px',
                 borderRadius: 12,
                 border: '2px solid #E5E7EB',
                 backgroundColor: '#ffffff',
@@ -122,7 +122,7 @@ export function NameCapture({ onNext, onHome, onBack, onReset }: { onNext: () =>
                 onClick={handleSubmit}
                 style={{
                   width: '100%',
-                  padding: '16px 0',
+                  padding: '11px 0',
                   borderRadius: 50,
                   border: 'none',
                   background: 'linear-gradient(135deg, #0AAFAA, #0891B2)',

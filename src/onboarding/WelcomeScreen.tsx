@@ -40,7 +40,7 @@ export function WelcomeScreen({
           minHeight: '100vh',
           width: '100%',
           padding: 0,
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: '#0F2554',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -76,9 +76,9 @@ export function WelcomeScreen({
             <h1
               style={{
                 margin: 0,
-                fontSize: 48,
-                fontWeight: 800,
-                letterSpacing: '-1px',
+                fontSize: 52,
+                fontWeight: 700,
+                letterSpacing: '-2px',
                 color: '#ffffff',
               }}
             >

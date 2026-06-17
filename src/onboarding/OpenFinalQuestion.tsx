@@ -54,7 +54,7 @@ export function OpenFinalQuestion({ onNext, onHome, onBack, onReset }: { onNext:
               backgroundColor: BRAND.surface,
               boxShadow: BRAND.shadow,
               border: `1px solid ${BRAND.border}`,
-              padding: theme.spacing.lg,
+              padding: `calc(${theme.spacing.lg} * 0.7)`,
             }}
           >
             <h2
@@ -70,7 +70,7 @@ export function OpenFinalQuestion({ onNext, onHome, onBack, onReset }: { onNext:
               Last one — if Elevate could do one thing that genuinely changes your career, what would that be?
             </h2>
 
-            <div style={{ display: 'grid', gap: theme.spacing.md, marginTop: theme.spacing.lg }}>
+            <div style={{ display: 'grid', gap: `calc(${theme.spacing.md} * 0.7)`, marginTop: `calc(${theme.spacing.lg} * 0.7)` }}>
               {FINAL_QUICK_OPTIONS.map((option) => {
                 const isActive = selectedOption === option;
                 return (
@@ -80,7 +80,7 @@ export function OpenFinalQuestion({ onNext, onHome, onBack, onReset }: { onNext:
                     onClick={() => setSelectedOption(option)}
                     style={{
                       width: '100%',
-                      padding: theme.spacing.lg,
+                      padding: `calc(${theme.spacing.lg} * 0.7)`,
                       borderRadius: theme.components.cardRadius,
                       border: isActive ? `1px solid ${BRAND.teal}` : `1px solid ${BRAND.border}`,
                       backgroundColor: isActive ? 'rgba(10,175,170,0.14)' : BRAND.canvas,
@@ -116,9 +116,9 @@ export function OpenFinalQuestion({ onNext, onHome, onBack, onReset }: { onNext:
               placeholder="Or tell us in your own words..."
               style={{
                 width: '100%',
-                marginTop: theme.spacing.lg,
-                minHeight: '11rem',
-                padding: theme.spacing.md,
+                marginTop: `calc(${theme.spacing.lg} * 0.7)`,
+                minHeight: '7.7rem',
+                padding: `calc(${theme.spacing.md} * 0.7)`,
                 borderRadius: theme.components.inputRadius,
                 border: `1px solid ${BRAND.border}`,
                 backgroundColor: BRAND.canvas,
@@ -134,7 +134,7 @@ export function OpenFinalQuestion({ onNext, onHome, onBack, onReset }: { onNext:
               onClick={handleContinue}
               disabled={!canContinue}
               style={{
-                marginTop: theme.spacing.xl,
+                marginTop: `calc(${theme.spacing.xl} * 0.7)`,
                 width: '100%',
                 padding: `${theme.spacing.md} 0`,
                 fontFamily: theme.fonts.body,
