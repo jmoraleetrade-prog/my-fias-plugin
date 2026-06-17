@@ -1,4 +1,25 @@
-import { useFiasTheme } from '@fias/arche-sdk';
+import { useEffect, useState } from 'react';
+import { useFiasTheme, useFiasDataStore } from '@fias/arche-sdk';
+import {
+  COLLECTIONS,
+  JobApplication,
+  UserProfile,
+  calculateVelocityScore,
+  logError,
+} from '../utils/aiHelpers';
+
+/** Profile doc as stored, plus the optional analysis fields the dashboard reads. */
+type StoredProfile = UserProfile & { cvScore?: number };
+
+/** Band label for a real velocity score (0–100). */
+function velocityBandLabel(score: number): string {
+  if (score >= 86) return 'Exceptional';
+  if (score >= 71) return 'Strong position';
+  if (score >= 51) return 'Good progress';
+  if (score >= 31) return 'Building momentum';
+  if (score >= 1) return 'Just getting started';
+  return 'No activity yet';
+}
 
 const TOOLS = [
   { emoji: '📄', name: 'CV Analysis', description: 'Optimize every section' },
@@ -21,13 +42,65 @@ const NAV_ITEMS = [
 
 export function Dashboard({ userName, onReset }: { userName: string; onReset: () => void }) {
   const theme = useFiasTheme();
+  const dataStore = useFiasDataStore();
+
+  const [profile, setProfile] = useState<StoredProfile | null>(null);
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+
+  // Pull the real profile + applications from the data store. A brand-new user
+  // has an empty applications collection, so every activity-derived stat below
+  // resolves to zero / a dash — nothing is hardcoded.
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const stored = await dataStore.get<StoredProfile & Record<string, unknown>>(COLLECTIONS.profile, 'main');
+        if (!cancelled && stored) setProfile(stored);
+      } catch (error) {
+        logError('Dashboard.loadProfile', error);
+      }
+
+      try {
+        const result = await dataStore.query<JobApplication & Record<string, unknown>>(COLLECTIONS.applications, {
+          limit: 100,
+        });
+        if (!cancelled) setApplications(result.documents.map((doc) => doc.data));
+      } catch (error) {
+        logError('Dashboard.loadApplications', error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dataStore]);
+
   if (!theme) return null;
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const displayName = userName ? userName.split(' ')[0] : 'there';
-  const velocityScore = 78;
-  const velocityBand = 'Confidence Band';
+
+  // Prefer the saved profile name, fall back to the prop; only "there" as a
+  // genuine last resort when no name exists at all.
+  const rawName = (profile?.name || userName || '').trim();
+  const displayName = rawName ? rawName.split(' ')[0] : 'there';
+
+  // Real, data-derived stats.
+  const applicationsCount = applications.length;
+  const interviewsCount = applications.filter(
+    (app) => app.status === 'interviewing' || app.status === 'offer' || app.status === 'accepted',
+  ).length;
+  const cvScore = typeof profile?.cvScore === 'number' ? profile.cvScore.toFixed(1) : '—';
+  const streak = 0; // No activity history is tracked yet for a new user.
+
+  // Velocity reflects real activity only — zero until the user actually does
+  // something (logs an application, etc.).
+  const hasActivity = applicationsCount > 0 || interviewsCount > 0;
+  const velocityScore = hasActivity
+    ? calculateVelocityScore(profile ?? { name: rawName, situationType: '' }, applications).score
+    : 0;
+  const velocityBand = velocityBandLabel(velocityScore);
 
   return (
     <div style={{ minHeight: '100vh', width: '100%', paddingBottom: 100, backgroundColor: '#ffffff', fontFamily: theme.fonts.body }}
@@ -98,10 +171,10 @@ export function Dashboard({ userName, onReset }: { userName: string; onReset: ()
         {/* STATS ROW */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16, marginBottom: 36 }}>
           {[
-            { label: 'CV Score', value: '8.2', unit: '/10' },
-            { label: 'Applications', value: '12', unit: 'active' },
-            { label: 'Interviews', value: '3', unit: 'scheduled' },
-            { label: 'Streak', value: '14', unit: 'days' },
+            { label: 'CV Score', value: cvScore, unit: '/10' },
+            { label: 'Applications', value: String(applicationsCount), unit: 'active' },
+            { label: 'Interviews', value: String(interviewsCount), unit: 'scheduled' },
+            { label: 'Streak', value: String(streak), unit: 'days' },
           ].map((stat) => (
             <div
               key={stat.label}

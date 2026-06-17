@@ -39,7 +39,9 @@ export function SituationSelection({
     >
       <style>
         {`@keyframes situationGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-          @keyframes situationCardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }`}
+          @keyframes situationCardIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+          .situation-card-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+          @media (min-width: 401px) { .situation-card-grid { grid-template-columns: repeat(4, 1fr); } }`}
       </style>
 
       {/* Navy header */}
@@ -98,13 +100,7 @@ export function SituationSelection({
           Pick the one that feels closest to where you are right now
         </p>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: 12,
-          }}
-        >
+        <div className="situation-card-grid">
           {SITUATION_OPTIONS.map((option, index) => {
             const isActive = selected === option.value;
             const isHovered = hovered === option.value;

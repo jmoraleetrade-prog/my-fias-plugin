@@ -152,7 +152,20 @@ export function App() {
         />
       );
     case 2:
-      return <NameCapture onNext={() => goTo(3)} onHome={goHome} onBack={() => goTo(1)} onReset={resetOnboarding} />;
+      return (
+        <NameCapture
+          onNext={(enteredName) => {
+            // Keep App's own copy in sync — usePersistentState instances don't
+            // share live state, so without this the saved profile (and the
+            // dashboard greeting) would see a stale empty name.
+            setName(enteredName);
+            goTo(3);
+          }}
+          onHome={goHome}
+          onBack={() => goTo(1)}
+          onReset={resetOnboarding}
+        />
+      );
     case 3:
       if (!situationType) {
         goTo(1);

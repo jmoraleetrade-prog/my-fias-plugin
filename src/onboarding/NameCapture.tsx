@@ -6,7 +6,7 @@ export function NameCapture({
   onNext,
   onBack,
 }: {
-  onNext: () => void;
+  onNext: (name: string) => void;
   onHome: () => void;
   onBack: () => void;
   onReset?: () => void;
@@ -33,7 +33,7 @@ export function NameCapture({
   const handleSubmit = () => {
     if (!firstWord) return;
     setName(firstWord);
-    onNext();
+    onNext(firstWord);
   };
 
   return (
