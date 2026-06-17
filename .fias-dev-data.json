@@ -1,16 +1,15 @@
 {
   "storage": {
     "__state/gdpr-consent": "true",
-    "__state/onboarding-step": "9",
-    "__state/ai-summary": "\"[Mock] Response for entity capability:text-standard with input: Here is everything there told us during sign-up:\\n\\nName: there\\nSituation: unspecified\\n\\nWrite a short,...\"",
-    "__state/onboarding-complete": "true",
-    "__state/user-name": "\"Jona\"",
-    "__state/situation-type": "\"job-hunting\"",
-    "__state/final-selection": "\"Earning more money\"",
-    "__state/final-free-text": "\"\"",
-    "__state/path-answers": "{\"job-hunting\":{\"0\":\"few_weeks\",\"1\":\"not_started\",\"2\":\"Warehouse Operative \"}}",
-    "__state/user-email": "\"jmoraleetrade@gmail.com\"",
-    "__state/daily-checkin-time": "\"No thanks\""
+    "__state/onboarding-step": "6",
+    "__state/ai-summary": "\"[Mock] Response for entity capability:text-standard with input: Write my coaching summary based on what I told you during sign-up.\"",
+    "__state/onboarding-complete": "false",
+    "__state/user-name": "\"JOna\"",
+    "__state/situation-type": "\"career-change\"",
+    "__state/final-free-text": "\"not really sure\"",
+    "__state/final-selection": "\"\"",
+    "__state/path-answers": "{\"career-change\":{\"0\":\"nurse for 10 years\",\"1\":\"few_ideas\",\"2\":\"lower_wage\"}}",
+    "__state/user-email": "\"\""
   },
   "dataCollections": {
     "profiles": {

@@ -8,7 +8,7 @@ export function OpenFinalQuestion({
   onHome,
   onBack,
 }: {
-  onNext: () => void;
+  onNext: (payload: { selection: string; text: string }) => void;
   onHome: () => void;
   onBack: () => void;
   onReset?: () => void;
@@ -30,8 +30,9 @@ export function OpenFinalQuestion({
 
   const handleContinue = () => {
     if (!canContinue) return;
-    setFreeText(draft.trim());
-    onNext();
+    const text = draft.trim();
+    setFreeText(text);
+    onNext({ selection: selectedOption ?? '', text });
   };
 
   return (

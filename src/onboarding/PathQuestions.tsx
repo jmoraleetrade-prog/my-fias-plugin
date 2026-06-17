@@ -20,7 +20,7 @@ export function PathQuestions({
 }: {
   situationType: SituationType;
   onBack: () => void;
-  onNext: () => void;
+  onNext: (answers: Record<number, string>) => void;
   onHome: () => void;
   onReset?: () => void;
 }) {
@@ -86,7 +86,7 @@ export function PathQuestions({
     if (!isLast) {
       setCurrentQuestionIndex((index) => index + 1);
     } else {
-      onNext();
+      onNext(currentAnswers);
     }
   };
 

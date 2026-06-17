@@ -13,7 +13,7 @@ import { DailyCheckInSetup } from './onboarding/DailyCheckInSetup';
 import { EmailCapture } from './onboarding/EmailCapture';
 import { Dashboard } from './dashboard/Dashboard';
 import { COLLECTIONS, initCollections, logError } from './utils/aiHelpers';
-import type { SituationType } from './onboarding/onboardingData';
+import { buildOnboardingProfile, type SituationType } from './onboarding/onboardingData';
 
 // Step indices for the onboarding flow (after the GDPR gate):
 // 0 Welcome · 1 Situation · 2 Name · 3 Path · 4 Final · 5 AI Loading
@@ -33,7 +33,7 @@ export function App() {
   const [situationType, setSituationType] = usePersistentState('situation-type', null as null | string);
   const [finalFreeText, setFinalFreeText] = usePersistentState('final-free-text', '');
   const [finalSelection, setFinalSelection] = usePersistentState('final-selection', '');
-  const [pathAnswers, setPathAnswers] = usePersistentState<Record<string, unknown>>('path-answers', {});
+  const [pathAnswers, setPathAnswers] = usePersistentState<Record<string, Record<number, string>>>('path-answers', {});
   const [email, setEmail] = usePersistentState('user-email', '');
 
   const [step, setStep] = useState(0);
@@ -175,17 +175,41 @@ export function App() {
         <PathQuestions
           situationType={situationType as SituationType}
           onBack={() => goTo(2)}
-          onNext={() => goTo(4)}
+          onNext={(answers) => {
+            // Sync the raw answers up so the AI summary (case 5) and the saved
+            // profile see them — usePersistentState instances don't share live
+            // state across components.
+            setPathAnswers({ ...pathAnswers, [situationType as string]: answers });
+            goTo(4);
+          }}
           onHome={goHome}
           onReset={resetOnboarding}
         />
       );
     case 4:
-      return <OpenFinalQuestion onNext={() => goTo(5)} onHome={goHome} onBack={() => goTo(3)} onReset={resetOnboarding} />;
-    case 5:
+      return (
+        <OpenFinalQuestion
+          onNext={({ selection, text }) => {
+            // Keep App's copies in sync for the AI summary and profile save.
+            setFinalSelection(selection);
+            setFinalFreeText(text);
+            goTo(5);
+          }}
+          onHome={goHome}
+          onBack={() => goTo(3)}
+          onReset={resetOnboarding}
+        />
+      );
+    case 5: {
+      const profile = buildOnboardingProfile({
+        name,
+        situation: situationType as SituationType | null,
+        rawPathAnswers: situationType ? pathAnswers[situationType] ?? {} : {},
+        openGoal: finalFreeText || finalSelection,
+      });
       return (
         <AISummaryLoading
-          name={name}
+          profile={profile}
           onComplete={(summary) => {
             setAiSummary(summary);
             goTo(6);
@@ -195,6 +219,7 @@ export function App() {
           onReset={resetOnboarding}
         />
       );
+    }
     case 6:
       return <AISummaryDisplay summary={aiSummary} onNext={() => goTo(7)} onHome={goHome} onBack={() => goTo(4)} onReset={resetOnboarding} />;
     case 7:

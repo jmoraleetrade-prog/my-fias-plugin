@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useFiasTheme } from '@fias/arche-sdk';
+import { parseAiJson, SummaryResult } from '../utils/aiHelpers';
 
 export function AISummaryDisplay({
   summary,
@@ -15,17 +16,18 @@ export function AISummaryDisplay({
 }) {
   const theme = useFiasTheme();
 
-  const lines = summary
-    .split('\n')
-    .map((line) => line.replace(/^\s*[-•\d.]+\s*/, '').trim())
-    .filter(Boolean);
-
-  const insight = lines[0] || "You've already made the hardest move — getting clear on what you want.";
-  const action = lines[1] || 'Pick the one thing that matters most right now, and take a single step toward it today.';
-  const rest = lines.slice(2).join('\n').trim();
+  // The model returns JSON: { summary, keyInsight, firstAction }. Parse it
+  // tolerantly, and fall back to plain text if anything is missing.
+  const parsed = parseAiJson<SummaryResult>(summary);
   const body =
-    rest ||
+    parsed?.summary?.trim() ||
+    summary.trim() ||
     `Here's what stands out from everything you shared — and the first move that will make the biggest difference.`;
+  const insight =
+    parsed?.keyInsight?.trim() || "You've already made the hardest move — getting clear on what you want.";
+  const action =
+    parsed?.firstAction?.trim() ||
+    'Pick the one thing that matters most right now, and take a single step toward it today.';
 
   // Type the body out one character at a time (15ms each).
   const [typedCount, setTypedCount] = useState(0);

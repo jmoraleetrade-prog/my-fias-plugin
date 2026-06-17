@@ -344,3 +344,81 @@ export const FINAL_QUICK_OPTIONS = [
   'Earning more money',
   'Feeling more confident',
 ];
+
+/**
+ * The shape the AI summary prompt is built from — readable, ready to drop into
+ * the coaching prompt. Assembled in App.tsx from the synced onboarding answers
+ * so nothing depends on stale persisted state at invoke time.
+ */
+export type OnboardingProfile = {
+  name: string;
+  /** Human-readable situation label (not the raw value). */
+  situationType: string;
+  /** Question text → the answer the user gave. */
+  pathAnswers: Record<string, string>;
+  /** What the user said they most want help with (final open question). */
+  openGoal: string;
+  /** The answer to whichever path question asked about their main hurdle. */
+  biggestChallenge: string;
+};
+
+// Phrases that mark a "what's holding you back / worrying you" path question.
+const CHALLENGE_MARKERS = [
+  'holding you back',
+  'holding your',
+  'biggest thing',
+  'single biggest',
+  'biggest',
+  'worries you most',
+  'worry',
+  'daunting',
+  'stopping you',
+  'standing between',
+  'concern',
+];
+
+/** Turn a raw choice/text value for a question into its readable answer. */
+function readableAnswer(question: PathQuestion, value: string): string {
+  if (question.kind === 'choice') {
+    return question.options.find((option) => option.value === value)?.label ?? value;
+  }
+  return value;
+}
+
+/**
+ * Build the readable profile the AI prompt consumes from the raw onboarding
+ * answers. `rawPathAnswers` is keyed by question index (as PathQuestions stores
+ * it).
+ */
+export function buildOnboardingProfile(args: {
+  name: string;
+  situation: SituationType | null;
+  rawPathAnswers: Record<number, string>;
+  openGoal: string;
+}): OnboardingProfile {
+  const { name, situation, rawPathAnswers, openGoal } = args;
+  const questions = situation ? PATH_QUESTION_SETS[situation] ?? [] : [];
+
+  const pathAnswers: Record<string, string> = {};
+  let biggestChallenge = '';
+
+  questions.forEach((question, index) => {
+    const value = rawPathAnswers[index];
+    if (!value || !value.trim()) return;
+    const answer = readableAnswer(question, value);
+    pathAnswers[question.question] = answer;
+
+    const isChallenge = CHALLENGE_MARKERS.some((marker) =>
+      question.question.toLowerCase().includes(marker),
+    );
+    if (isChallenge && !biggestChallenge) biggestChallenge = answer;
+  });
+
+  return {
+    name: name.trim(),
+    situationType: situation ? SITUATION_LABELS[situation] : '',
+    pathAnswers,
+    openGoal: openGoal.trim(),
+    biggestChallenge,
+  };
+}

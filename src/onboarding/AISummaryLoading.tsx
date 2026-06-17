@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { useEntityInvocation, usePersistentState, useFiasTheme } from '@fias/arche-sdk';
-import { MASTER_PERSONA, buildUserContext } from '../utils/aiHelpers';
-import { PATH_QUESTION_SETS, SITUATION_LABELS, SituationType } from './onboardingData';
+import { useEntityInvocation, useFiasTheme } from '@fias/arche-sdk';
+import { buildSummarySystemPrompt } from '../utils/aiHelpers';
+import { OnboardingProfile } from './onboardingData';
 
 export function AISummaryLoading({
-  name,
+  profile,
   onComplete,
   onBack,
 }: {
-  name: string;
+  profile: OnboardingProfile;
   onComplete: (summary: string) => void;
   onHome: () => void;
   onBack: () => void;
@@ -17,12 +17,7 @@ export function AISummaryLoading({
   const theme = useFiasTheme();
   const { invoke } = useEntityInvocation();
 
-  const [situationType] = usePersistentState<SituationType | null>('situation-type', null);
-  const [storedAnswers] = usePersistentState<Record<string, Record<number, string>>>('path-answers', {});
-  const [finalSelection] = usePersistentState<string | null>('final-selection', null);
-  const [finalText] = usePersistentState('final-free-text', '');
-
-  const firstName = (name || '').trim().split(/\s+/)[0] || 'there';
+  const firstName = (profile.name || '').trim().split(/\s+/)[0] || 'there';
   const messages = [
     `Thanks ${firstName}.`,
     'Give me a moment...',
@@ -40,40 +35,16 @@ export function AISummaryLoading({
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
-  // Kick off the AI summary exactly once, with the user's own answers as context.
+  // Kick off the AI summary exactly once, using the full onboarding profile
+  // (name, situation, path answers, goal and biggest challenge) in the prompt.
   useEffect(() => {
     if (invokedRef.current) return;
     invokedRef.current = true;
 
-    // Turn the saved choice/text answers into readable lines for the model.
-    const answers: Record<string, string> = {};
-    if (situationType) {
-      const questions = PATH_QUESTION_SETS[situationType] ?? [];
-      const saved = storedAnswers[situationType] || {};
-      questions.forEach((question, index) => {
-        const value = saved[index];
-        if (!value) return;
-        if (question.kind === 'choice') {
-          const label = question.options.find((option) => option.value === value)?.label ?? value;
-          answers[question.question] = label;
-        } else {
-          answers[question.question] = value;
-        }
-      });
-    }
-
-    const context = buildUserContext({
-      name: firstName,
-      situationType: situationType ? SITUATION_LABELS[situationType] : '',
-      finalText: finalText || finalSelection || '',
-      pathAnswers: answers,
-      goals: finalSelection ? [finalSelection] : [],
-    });
-
     invoke({
       entityId: { capability: 'text-standard' },
-      input: `Here is everything ${firstName} told us during sign-up:\n\n${context}\n\nWrite a short, warm, plain-English read of where they are. Line 1: the single most important thing you notice. Line 2: the one clear first step they should take. Keep it specific to them, no jargon.`,
-      systemPrompt: MASTER_PERSONA,
+      input: `Write my coaching summary based on what I told you during sign-up.`,
+      systemPrompt: buildSummarySystemPrompt(profile),
     })
       .then((result) => {
         summaryRef.current = result?.output ?? '';
@@ -82,7 +53,7 @@ export function AISummaryLoading({
         summaryRef.current = '';
       })
       .finally(() => setAiDone(true));
-  }, [invoke, firstName, situationType, storedAnswers, finalSelection, finalText]);
+  }, [invoke, profile]);
 
   // Reveal one message every 2.5s, stopping at the last.
   useEffect(() => {

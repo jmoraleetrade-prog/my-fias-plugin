@@ -1,4 +1,5 @@
 import { fias } from '@fias/arche-sdk';
+import type { OnboardingProfile } from '../onboarding/onboardingData';
 
 /**
  * Shared helpers for Elevate's AI-powered career features.
@@ -53,6 +54,39 @@ export interface JobApplication {
 // ---------------------------------------------------------------------------
 
 export const MASTER_PERSONA = `You are Elevate's career intelligence engine. You read the user's goals and situation with respect, focus on clarity, and provide concise, personalized career guidance. Use supportive, confident language and avoid generic templates. Always highlight the user's main priority, the single strongest next action, and one immediate confidence-building idea. Never invent facts about the user that they did not provide.`;
+
+/** The structured result the onboarding summary model returns. */
+export interface SummaryResult {
+  summary: string;
+  keyInsight: string;
+  firstAction: string;
+}
+
+/** Render the path answers as a single readable string for the prompt. */
+function formatPathAnswers(pathAnswers: Record<string, string>): string {
+  const entries = Object.entries(pathAnswers);
+  if (entries.length === 0) return 'None given';
+  return entries.map(([question, answer]) => `${question} — ${answer}`).join('; ');
+}
+
+/**
+ * The exact onboarding-summary system prompt, with the user's own onboarding
+ * answers filled into the placeholders. The wording is fixed by spec; only the
+ * bracketed values are substituted.
+ */
+export function buildSummarySystemPrompt(profile: OnboardingProfile): string {
+  const name = profile.name || 'Not given';
+  const situationType = profile.situationType || 'Not specified';
+  const openGoal = profile.openGoal || 'Not specified';
+  const biggestChallenge = profile.biggestChallenge || 'Not specified';
+  const pathAnswers = formatPathAnswers(profile.pathAnswers);
+
+  return `You are the Elevate career coach. Warm, direct, honest. Never generic. Always specific to this person.
+NEVER use: "Great question", "Certainly", "As an AI", "passionate", "results-driven", "dynamic", "leverage", "In today's competitive job market".
+The user has told you: Name: ${name}. Situation: ${situationType}. Goal: ${openGoal}. Biggest challenge: ${biggestChallenge}. Their answers: ${pathAnswers}.
+Write a personalised 3 sentence coaching summary specific to what they told you. Then identify one key insight. Then give one specific first action they can take today.
+Return ONLY valid JSON: {"summary": string, "keyInsight": string, "firstAction": string}`;
+}
 
 /**
  * Turn a user profile into a compact, readable context block for an AI
