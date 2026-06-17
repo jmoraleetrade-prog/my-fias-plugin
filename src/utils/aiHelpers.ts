@@ -325,7 +325,7 @@ function velocityBand(score: number): string {
 
 /** Collections the plugin relies on. */
 export const COLLECTIONS = {
-  profile: 'profile',
+  profile: 'profiles',
   applications: 'applications',
   vault: 'vault',
 } as const;
