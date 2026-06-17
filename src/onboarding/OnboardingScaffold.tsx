@@ -129,12 +129,12 @@ export function OnboardingScaffold({
 }
 
 /**
- * Number of grid columns for a set of answer cards. Avoids leaving empty grid
- * cells: 3 options stack in a single column rather than a 2×2 with a hole.
+ * Number of grid columns for a set of answer cards. Only an even fit gets two
+ * columns — 4 → 2×2, 6 → 2×3 — so the grid is never left with an empty cell.
+ * Odd counts (3, 5) and everything else stack in a single column.
  */
 export function answerColumns(count: number): number {
-  if (count >= 4) return 2; // 4 → 2×2, 5/6 → two columns
-  return 1; // 1–3 → single column
+  return count === 4 || count === 6 ? 2 : 1;
 }
 
 /** Shared continue button fixed to the bottom of the viewport. */

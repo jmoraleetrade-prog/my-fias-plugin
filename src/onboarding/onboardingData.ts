@@ -10,252 +10,337 @@ export const BRAND = {
   shadow: '0 24px 70px rgba(15, 37, 84, 0.08)',
 };
 
+/**
+ * The eight starting situations a new user can pick from. Plain-English values
+ * so the saved data reads clearly in the data store.
+ */
 export type SituationType =
-  | 'job_hunting'
-  | 'earn_more'
-  | 'career_change'
-  | 'work_for_myself'
-  | 'business_growth'
-  | 'starting_out'
-  | 'return_to_work'
-  | 'future_proof';
+  | 'job-hunting'
+  | 'promotion'
+  | 'career-change'
+  | 'self-employed-aspiring'
+  | 'self-employed-growing'
+  | 'just-starting'
+  | 'returning'
+  | 'future-proofing';
 
-export const SITUATION_LABELS: Record<SituationType, string> = {
-  job_hunting: "I'm job hunting and need an edge",
-  earn_more: 'I want to earn more or get promoted',
-  career_change: 'I want to change careers completely',
-  work_for_myself: 'I want to work for myself',
-  business_growth: 'I run my own business and want to grow it',
-  starting_out: "I'm just starting out and don't know where to begin",
-  return_to_work: "I've been out of work and I'm ready to return",
-  future_proof: "I'm settled but want to future-proof my career",
+export type SituationOption = {
+  value: SituationType;
+  label: string;
+  emoji: string;
+  accent: string;
 };
 
-export const SITUATION_OPTIONS = Object.entries(SITUATION_LABELS).map(([value, label]) => ({
-  value: value as SituationType,
-  label,
-}));
+/** Cards on the situation screen, in display order. */
+export const SITUATION_OPTIONS: SituationOption[] = [
+  { value: 'job-hunting', emoji: '🔍', label: "I'm looking for a job and need help standing out", accent: '#3B82F6' },
+  { value: 'promotion', emoji: '📈', label: 'I want a pay rise or a step up', accent: '#8B5CF6' },
+  { value: 'career-change', emoji: '🔄', label: 'I want to do something completely different', accent: '#F59E0B' },
+  { value: 'self-employed-aspiring', emoji: '🚀', label: 'I want to go self-employed or start something', accent: '#10B981' },
+  { value: 'self-employed-growing', emoji: '💻', label: 'I work for myself and want to earn more or grow', accent: '#06B6D4' },
+  { value: 'just-starting', emoji: '🌱', label: "I'm new to all this and need help getting started", accent: '#EC4899' },
+  { value: 'returning', emoji: '↩️', label: "I've had time out of work and I'm ready to go back", accent: '#F97316' },
+  { value: 'future-proofing', emoji: '🛡️', label: "I'm settled but want to make sure I'm not left behind", accent: '#6366F1' },
+];
 
-export const PATH_QUESTION_SETS: Record<
-  SituationType,
-  {
-    question: string;
-    options: { label: string; value: string; affirmation: string }[];
-  }[]
-> = {
-  job_hunting: [
+export const SITUATION_LABELS: Record<SituationType, string> = SITUATION_OPTIONS.reduce(
+  (acc, option) => {
+    acc[option.value] = option.label;
+    return acc;
+  },
+  {} as Record<SituationType, string>,
+);
+
+export const SITUATION_ACCENTS: Record<SituationType, string> = SITUATION_OPTIONS.reduce(
+  (acc, option) => {
+    acc[option.value] = option.accent;
+    return acc;
+  },
+  {} as Record<SituationType, string>,
+);
+
+export const SITUATION_EMOJIS: Record<SituationType, string> = SITUATION_OPTIONS.reduce(
+  (acc, option) => {
+    acc[option.value] = option.emoji;
+    return acc;
+  },
+  {} as Record<SituationType, string>,
+);
+
+/**
+ * The warm one-liner shown under the name input once the user has typed their
+ * first name. `[name]` is filled in at render time.
+ */
+export const SITUATION_NAME_RESPONSES: Record<SituationType, string> = {
+  'job-hunting': "Nice to meet you [name]. Let's get you that job.",
+  promotion: "Nice to meet you [name]. Let's build your case for more.",
+  'career-change': "Nice to meet you [name]. Let's work out the best way to get there.",
+  'self-employed-aspiring': "Nice to meet you [name]. Let's help you make the move.",
+  'self-employed-growing': "Nice to meet you [name]. Let's help you grow it.",
+  'just-starting': "Nice to meet you [name]. Let's figure out where to begin.",
+  returning: "Nice to meet you [name]. Let's get you back out there.",
+  'future-proofing': "Nice to meet you [name]. Let's make sure you stay ahead.",
+};
+
+/**
+ * A single path question — either a set of choice cards (each with its own
+ * micro-affirmation) or a free-text box. `columns` lets a choice question
+ * override the default layout (used where a 6-option set must stay in a single
+ * column rather than a grid).
+ */
+export type PathChoiceOption = { label: string; value: string; affirmation: string };
+
+export type PathQuestion =
+  | { kind: 'choice'; question: string; options: PathChoiceOption[]; columns?: 1 | 2 }
+  | { kind: 'text'; question: string; placeholder: string; affirmation: string };
+
+export const PATH_QUESTION_SETS: Record<SituationType, PathQuestion[]> = {
+  'job-hunting': [
     {
-      question: 'What would make your next job search feel truly different?',
+      kind: 'choice',
+      question: 'How long have you been looking?',
       options: [
-        { label: 'More interview invitations', value: 'more_interviews', affirmation: 'Momentum starts with opportunity.' },
-        { label: 'A clearer resume story', value: 'clear_resume', affirmation: 'Clarity makes your experience easier to believe.' },
-        { label: 'A stronger network response', value: 'strong_network', affirmation: 'A well-timed reach-out can unlock doors.' },
+        { label: 'Just getting started — feeling optimistic', value: 'just_started', affirmation: "Perfect timing — let's make sure you start strong." },
+        { label: 'A few weeks in — making progress', value: 'few_weeks', affirmation: "Good momentum. Let's sharpen everything up." },
+        { label: "1 to 3 months — starting to wonder what's not working", value: '1_3_months', affirmation: "That instinct is right — something isn't landing. Let's find it." },
+        { label: '3 to 6 months — getting frustrated if honest', value: '3_6_months', affirmation: "Frustration is valid. Let's work out exactly what's not working." },
+        { label: 'More than 6 months — really need this to change', value: 'over_6_months', affirmation: "Six months takes real persistence. Let's make the next application count." },
       ],
     },
     {
-      question: 'Which outcome matters most in the next 90 days?',
+      kind: 'choice',
+      question: "What's happening when you apply?",
       options: [
-        { label: 'A confident offer in hand', value: 'offer_confidence', affirmation: 'Success is a collection of small, clear wins.' },
-        { label: 'A fresher personal brand', value: 'fresh_brand', affirmation: 'Your story is an asset worth sharpening.' },
-        { label: 'A stronger interview performance', value: 'better_interviews', affirmation: 'Preparation makes every conversation feel easier.' },
+        { label: 'Not getting any responses', value: 'no_responses', affirmation: 'This usually means the CV or the targeting needs work — very fixable.' },
+        { label: 'Getting responses but no interviews', value: 'no_interviews', affirmation: 'Good sign. Interview prep will make the difference.' },
+        { label: 'Getting interviews but not getting the job', value: 'no_offers', affirmation: "You're close. This is about fine-tuning not starting over." },
+        { label: "Haven't started applying yet", value: 'not_started', affirmation: 'Smart to get prepared before you begin.' },
+        { label: 'It varies — no clear pattern', value: 'varies', affirmation: "Let's look at everything and find the pattern." },
       ],
     },
     {
-      question: 'What feels like the biggest barrier right now?',
+      kind: 'text',
+      question: 'What kind of role are you going for?',
+      placeholder: 'e.g. HGV driver in the North West, warehouse team leader, marketing manager',
+      affirmation: 'Got it — that gives us a clear target to aim at.',
+    },
+  ],
+  promotion: [
+    {
+      kind: 'choice',
+      question: 'Are you looking to move up where you are or somewhere new?',
       options: [
-        { label: 'Competing in a crowded market', value: 'crowded_market', affirmation: 'Differentiation is the fastest way past noise.' },
-        { label: 'Not knowing which companies fit', value: 'company_fit', affirmation: 'The right target makes the work feel rewarding.' },
-        { label: 'Turning applications into interviews', value: 'applications_to_interviews', affirmation: 'Small changes to outreach can change the whole flow.' },
+        { label: 'Stay and get promoted where I am', value: 'internal', affirmation: 'Internal promotion is very achievable with the right approach.' },
+        { label: 'Move to a new employer at a higher level', value: 'new_employer', affirmation: "A new company can mean a significant step up. Let's position you right." },
+        { label: 'Either — I just want to move up', value: 'either', affirmation: "Keeping options open is smart. Let's build the strongest possible case." },
+      ],
+    },
+    {
+      kind: 'text',
+      question: "What's your current job and how long have you been doing it?",
+      placeholder: 'e.g. Warehouse supervisor — 3 years / Delivery driver — 5 years / Marketing manager — 2 years',
+      affirmation: "Thanks — that's the background we need.",
+    },
+    {
+      kind: 'choice',
+      question: 'What do you think is holding you back?',
+      options: [
+        { label: 'I need to show more of what I can do', value: 'show_more', affirmation: "Your results need to be visible. Let's make that happen." },
+        { label: 'I need to get better at certain things', value: 'skills', affirmation: "Specific skill gaps are fixable. Let's find the right ones." },
+        { label: "I don't push myself forward enough", value: 'self_promotion', affirmation: 'Knowing how to ask is half the battle. We can help with that.' },
+        { label: "The right people don't know what I'm capable of", value: 'visibility', affirmation: "Visibility is underrated. Let's work on that." },
+        { label: "Honestly I'm not sure — I need a fresh perspective", value: 'not_sure', affirmation: 'Sometimes an outside view is exactly what’s needed.' },
       ],
     },
   ],
-  earn_more: [
+  'career-change': [
     {
-      question: 'What motivates you most about earning more?',
+      kind: 'text',
+      question: 'What are you moving away from — and what are you thinking of moving towards?',
+      placeholder: 'e.g. Been a nurse for 10 years, thinking about moving into training or management',
+      affirmation: "Thanks for sharing that — it's a good place to start.",
+    },
+    {
+      kind: 'choice',
+      question: 'How clear is your direction right now?',
       options: [
-        { label: 'More freedom with money', value: 'financial_freedom', affirmation: 'More freedom gives you more choices.' },
-        { label: 'A stronger professional title', value: 'stronger_title', affirmation: 'Title and confidence travel together.' },
-        { label: 'New responsibilities that excite me', value: 'new_responsibilities', affirmation: 'Growth is most sustainable when it feels energizing.' },
+        { label: 'I know exactly what I want to do next', value: 'clear', affirmation: "Having a clear target makes everything easier. Let's go." },
+        { label: "I have a couple of ideas I'm weighing up", value: 'few_ideas', affirmation: "Let's help you work out which one fits best." },
+        { label: 'I know I want something different but not sure what yet', value: 'unsure', affirmation: "That's completely normal. We'll help you figure it out." },
       ],
     },
     {
-      question: 'What would feel like a meaningful promotion move?',
+      kind: 'choice',
+      question: 'What worries you most about making this change?',
       options: [
-        { label: 'A role with more influence', value: 'more_influence', affirmation: 'Influence is impact plus trust.' },
-        { label: 'A title that matches my ambition', value: 'ambitious_title', affirmation: 'Ambition is just the first step toward a better role.' },
-        { label: 'Stronger compensation for my skills', value: 'better_compensation', affirmation: 'Being paid what you deserve is also a recognition moment.' },
-      ],
-    },
-    {
-      question: 'What is holding your progress back today?',
-      options: [
-        { label: 'Not being visible to decision makers', value: 'visibility', affirmation: 'Visibility is the bridge between talent and opportunity.' },
-        { label: 'Unclear promotion plan', value: 'unclear_plan', affirmation: 'A better plan makes every step more certain.' },
-        { label: 'Not having strong proof of impact', value: 'proof_of_impact', affirmation: 'Clear impact is what gets the raise approved.' },
-      ],
-    },
-  ],
-  career_change: [
-    {
-      question: 'What feels most exciting about changing careers?',
-      options: [
-        { label: 'A completely new mission', value: 'new_mission', affirmation: 'Fresh purpose can make your work feel alive again.' },
-        { label: 'A new set of skills to master', value: 'new_skills', affirmation: 'Learning something new is one of the clearest growth signals.' },
-        { label: 'More creative or flexible work', value: 'creative_flex', affirmation: 'Freedom to choose your work style is a powerful advantage.' },
-      ],
-    },
-    {
-      question: 'What do you want to keep from your current experience?',
-      options: [
-        { label: 'Leadership or teamwork skills', value: 'leadership_skills', affirmation: 'Transferable skills are more valuable than you think.' },
-        { label: 'Industry knowledge, just in a new way', value: 'industry_knowledge', affirmation: 'Your experience can be an unexpected strength.' },
-        { label: 'A higher level of stability', value: 'stability', affirmation: 'A smart pivot keeps you grounded while you change direction.' },
-      ],
-    },
-    {
-      question: 'What worries you most about the switch?',
-      options: [
-        { label: 'Starting at the bottom again', value: 'starting_over', affirmation: 'New beginnings often start from a strong foundation.' },
-        { label: 'Losing the progress I already made', value: 'losing_progress', affirmation: 'A good plan protects your momentum.' },
-        { label: 'Not knowing the right next step', value: 'unknown_next_step', affirmation: 'The right next step is simpler once the direction is clear.' },
+        { label: 'Having to start again on a lower wage', value: 'lower_wage', affirmation: "A temporary dip is often worth it. Let's look at the real numbers." },
+        { label: 'Not having the right qualifications or experience', value: 'qualifications', affirmation: "You might need less than you think. Let's check." },
+        { label: 'Whether employers will give a career changer a chance', value: 'a_chance', affirmation: 'Career changers get hired every day. Framing is everything.' },
+        { label: 'Making the wrong decision and regretting it', value: 'wrong_decision', affirmation: "Let's make sure it's the right call before you make any moves." },
+        { label: "Whether it's even possible at this point in my life", value: 'possible', affirmation: 'It is possible. The route just needs to be right for you.' },
       ],
     },
   ],
-  work_for_myself: [
+  'self-employed-aspiring': [
     {
-      question: 'What would make working for yourself feel successful?',
+      kind: 'choice',
+      question: "Do you know what you'd offer?",
       options: [
-        { label: 'A reliable income stream', value: 'reliable_income', affirmation: 'Stability is a huge win in independent work.' },
-        { label: 'Clients who respect my expertise', value: 'respected_clients', affirmation: 'The right clients amplify everything you build.' },
-        { label: 'More control over my schedule', value: 'schedule_control', affirmation: 'Flexibility is one of the biggest benefits of ownership.' },
+        { label: 'Yes — I know exactly what I want to do', value: 'clear', affirmation: 'Having clarity on your offer is the best possible start.' },
+        { label: "I have a couple of ideas I'm thinking about", value: 'few_ideas', affirmation: "Let's help you work out which one to go with." },
+        { label: "I want to work for myself but haven't figured out what yet", value: 'unsure', affirmation: "That's where most people start. Let's work it out together." },
       ],
     },
     {
-      question: 'What kind of work do you want to do for yourself?',
+      kind: 'choice',
+      question: "What's your situation right now?",
       options: [
-        { label: 'Project-based work for clients', value: 'project_work', affirmation: 'Project work is a great way to build momentum and proof.' },
-        { label: 'A product or service I own', value: 'own_product', affirmation: 'Owning a product gives you long-term leverage.' },
-        { label: 'Consulting or coaching work', value: 'consulting_coaching', affirmation: 'Helping others is one of the fastest ways to grow your reputation.' },
+        { label: "I'm employed and thinking about leaving at some point", value: 'employed_leaving', affirmation: 'Having income while you plan is a big advantage.' },
+        { label: "I'm employed and want to do both for a while", value: 'employed_both', affirmation: 'Running both is very common and very doable.' },
+        { label: "I'm not working at the moment", value: 'not_working', affirmation: 'Being self-employed could be the right next move.' },
+        { label: 'I was made redundant recently', value: 'redundant', affirmation: "Many people go self-employed after redundancy. Let's explore it." },
       ],
     },
     {
-      question: 'What is the biggest block in your business mindset?',
+      kind: 'choice',
+      question: 'What feels like the biggest thing stopping you?',
       options: [
-        { label: 'Feeling like I need all the answers first', value: 'answers_first', affirmation: 'Progress often follows action, not perfect answers.' },
-        { label: 'Not having consistent client demand', value: 'client_demand', affirmation: 'Consistent demand is the compounding advantage.' },
-        { label: 'Not knowing how to charge what I deserve', value: 'pricing_confidence', affirmation: 'Pricing with confidence helps you attract the right work.' },
-      ],
-    },
-  ],
-  business_growth: [
-    {
-      question: 'What growth outcome would feel most meaningful?',
-      options: [
-        { label: 'More customers in a predictable way', value: 'predictable_customers', affirmation: 'Predictability makes growth less stressful.' },
-        { label: 'Better margins on what you already sell', value: 'better_margins', affirmation: 'Stronger margins make your business healthier fast.' },
-        { label: 'A clearer brand that attracts your ideal buyers', value: 'clear_brand', affirmation: 'A strong brand simplifies every decision.' },
-      ],
-    },
-    {
-      question: 'Where do you want the business to feel stronger?',
-      options: [
-        { label: 'Sales and closing more reliably', value: 'sales_closing', affirmation: 'Reliable sales are the most dependable growth lever.' },
-        { label: 'Operations that don’t require you in every detail', value: 'operational_leverage', affirmation: 'Leverage is the secret to scaling without burning out.' },
-        { label: 'Marketing that feels authentic to your values', value: 'authentic_marketing', affirmation: 'Authenticity connects with the right audience faster.' },
-      ],
-    },
-    {
-      question: 'What keeps you from growing faster today?',
-      options: [
-        { label: 'Not enough time to focus on strategy', value: 'time_strategy', affirmation: 'A clearer plan gives you more time to focus on growth.' },
-        { label: 'Uncertain where to invest next', value: 'investment_uncertainty', affirmation: 'The right investment is the one that improves your momentum.' },
-        { label: 'Feeling like growth is too risky', value: 'growth_risk', affirmation: 'Calculated growth can feel safe when the steps are clear.' },
+        { label: 'Getting enough work and clients', value: 'clients', affirmation: "Client work is a skill — and it's learnable." },
+        { label: 'The risk of not having a regular income', value: 'income_risk', affirmation: 'There are ways to manage this better than most people think.' },
+        { label: 'Not knowing where to actually start', value: 'where_to_start', affirmation: "There is a clear starting point. Let's find yours." },
+        { label: "Not being sure I'm good enough to charge for what I do", value: 'good_enough', affirmation: "If people have paid for it before you're good enough." },
+        { label: 'The security of having a regular wage', value: 'security', affirmation: "The trade-off is real. Let's look at it honestly." },
       ],
     },
   ],
-  starting_out: [
+  'self-employed-growing': [
     {
-      question: 'What would help you feel most confident starting out?',
+      kind: 'text',
+      question: 'Tell me what you do and who your best clients are',
+      placeholder: 'e.g. Plumber working mainly for landlords and letting agents in Manchester',
+      affirmation: "Great — now we know who you're best placed to help.",
+    },
+    {
+      kind: 'choice',
+      question: 'How long have you been doing this?',
       options: [
-        { label: 'A clear first career direction', value: 'career_direction', affirmation: 'A clear direction is the first real advantage.' },
-        { label: 'A simple plan for what to learn first', value: 'learn_first', affirmation: 'A learning plan turns overwhelm into action.' },
-        { label: 'Knowing what employers value most', value: 'employer_value', affirmation: 'Knowing value helps you make better moves faster.' },
+        { label: 'Less than a year — still getting going', value: 'under_1_year', affirmation: 'Early days are the best time to get the foundations right.' },
+        { label: '1 to 2 years — starting to get somewhere', value: '1_2_years', affirmation: "You've proven it works. Now let's scale it." },
+        { label: '2 to 5 years — established and want to grow', value: '2_5_years', affirmation: 'Established is a great place to grow from.' },
+        { label: 'More than 5 years — ready for the next level', value: 'over_5_years', affirmation: "Experience like yours is a real asset. Let's use it." },
       ],
     },
     {
-      question: 'What worries you the most right now?',
+      kind: 'choice',
+      question: "What's the single biggest thing holding you back?",
       options: [
-        { label: 'Not having enough experience yet', value: 'experience_worry', affirmation: 'Experience grows faster once you start with purpose.' },
-        { label: 'Choosing the wrong path too soon', value: 'wrong_path', affirmation: 'A flexible start is better than a stuck decision.' },
-        { label: 'Not getting noticed by employers', value: 'not_noticed', affirmation: 'Visibility can change everything in a short time.' },
-      ],
-    },
-    {
-      question: 'What would feel like a strong first milestone?',
-      options: [
-        { label: 'A role with growth potential', value: 'role_growth', affirmation: 'Growth potential is the strongest early advantage.' },
-        { label: 'A learning path that feels practical', value: 'practical_learning', affirmation: 'Practical learning makes progress tangible.' },
-        { label: 'A network of people who can support me', value: 'support_network', affirmation: 'A network is the difference between trying and moving forward.' },
-      ],
-    },
-  ],
-  return_to_work: [
-    {
-      question: 'What matters most as you prepare to return?',
-      options: [
-        { label: 'Confidence in my skills again', value: 'skill_confidence', affirmation: 'Confidence is the foundation of every strong return.' },
-        { label: 'A smooth way back into a role', value: 'smooth_return', affirmation: 'A thoughtful return makes the transition feel easier.' },
-        { label: 'Finding work that respects my gap', value: 'respect_gap', affirmation: 'The right role sees your break as part of your story.' },
-      ],
-    },
-    {
-      question: 'What feels like the biggest obstacle today?',
-      options: [
-        { label: 'Not being sure where to apply', value: 'where_to_apply', affirmation: 'The right targets make your return much stronger.' },
-        { label: 'Gaps in my recent experience', value: 'experience_gaps', affirmation: 'Strategic storytelling can make gaps feel normal.' },
-        { label: 'Getting noticed by hiring teams', value: 'noticed_by_hiring', affirmation: 'The right approach gets your profile into the right hands.' },
-      ],
-    },
-    {
-      question: 'What will make this return feel successful?',
-      options: [
-        { label: 'A role I feel proud of', value: 'proud_role', affirmation: 'Pride in your next role is a powerful signal of progress.' },
-        { label: 'A job that uses my best strengths', value: 'best_strengths', affirmation: 'Strength-based roles set you up to win faster.' },
-        { label: 'A path that feels sustainable', value: 'sustainable_path', affirmation: 'A sustainable return is a return you can keep building on.' },
+        { label: 'Not enough work coming in', value: 'not_enough_work', affirmation: "Lead generation is fixable. Let's look at where your best clients come from." },
+        { label: "The work I get doesn't pay well enough", value: 'low_pay', affirmation: 'Pricing is one of the biggest changes you can make.' },
+        { label: "I'm flat out but still not making enough", value: 'busy_not_enough', affirmation: 'This is a pricing and efficiency problem. Very solvable.' },
+        { label: "I want to grow but don't know how", value: 'how_to_grow', affirmation: "Growth needs a plan. Let's build one." },
+        { label: "People don't understand what makes me different", value: 'differentiation', affirmation: "Clarity on your offer changes everything. Let's sharpen it." },
       ],
     },
   ],
-  future_proof: [
+  'just-starting': [
     {
-      question: 'What does future-proofing mean to you?',
+      kind: 'choice',
+      question: "What's your situation at the moment?",
       options: [
-        { label: 'Keeping my skills in demand', value: 'demand_skills', affirmation: 'Demand-proof skills are the clearest form of career security.' },
-        { label: 'Being ready for change', value: 'ready_for_change', affirmation: 'Readiness makes change feel like opportunity.' },
-        { label: 'Maintaining leverage in my work', value: 'work_leverage', affirmation: 'Leverage helps you stay ahead of uncertainty.' },
+        { label: 'Just finished school, college or university', value: 'just_finished', affirmation: "Perfect timing — let's get you started the right way." },
+        { label: 'Still studying but thinking ahead', value: 'studying', affirmation: 'Planning ahead puts you ahead of most people your age.' },
+        { label: 'Been doing other things and want to start a proper career', value: 'other_things', affirmation: "It's never too late to get on the right track." },
+        { label: "Had a job or two but need help figuring out where I'm going", value: 'figuring_out', affirmation: "You've got more to work with than you think." },
       ],
     },
     {
-      question: 'What would help you feel more resilient?',
+      kind: 'choice',
+      question: 'Do you have any idea what kind of work you want to do?',
       options: [
-        { label: 'A stronger personal brand', value: 'personal_brand', affirmation: 'Your reputation is one of the most resilient assets you have.' },
-        { label: 'A broader set of options', value: 'broader_options', affirmation: 'More options make every decision feel safer.' },
-        { label: 'A path that adapts easily', value: 'adaptable_path', affirmation: 'Adaptability is the best shield against uncertainty.' },
+        { label: 'Yes — I have a clear idea', value: 'clear', affirmation: 'Having direction this early is a real advantage.' },
+        { label: "I have a few things I'm interested in", value: 'few_things', affirmation: "Let's help you narrow it down." },
+        { label: 'No idea yet — I need help working it out', value: 'no_idea', affirmation: "Most people feel exactly like this at the start. We'll figure it out." },
       ],
     },
     {
-      question: 'What is the best way to protect your career?',
+      kind: 'choice',
+      question: 'What worries you most about getting started?',
       options: [
-        { label: 'Building skills that last', value: 'lasting_skills', affirmation: 'Lasting skills are the foundation of long-term confidence.' },
-        { label: 'Creating visible progress each month', value: 'visible_progress', affirmation: 'Visible progress keeps your career moving forward.' },
-        { label: 'Investing in relationships and networks', value: 'relationships', affirmation: 'Relationships are the most valuable long-term career asset.' },
+        { label: "I don't have any experience", value: 'no_experience', affirmation: 'Everyone starts without experience. There are ways around it.' },
+        { label: "I don't know how to write a CV or sell myself", value: 'cv', affirmation: "Writing a great CV is a skill — and we'll teach you." },
+        { label: "I don't really know how job hunting works", value: 'job_hunting_works', affirmation: "Most people don't. Let's walk you through it." },
+        { label: "I'm not sure I'm going in the right direction", value: 'right_direction', affirmation: "Better to question it now than later. Let's find out." },
+        { label: "I don't know what I'm actually good at", value: 'strengths', affirmation: 'Figuring that out is one of the most valuable things you can do.' },
+      ],
+    },
+  ],
+  returning: [
+    {
+      kind: 'choice',
+      columns: 1,
+      question: 'How long have you been out of work — and what was the reason?',
+      options: [
+        { label: 'Maternity or paternity leave', value: 'parental', affirmation: "Returning after parental leave is very common. You've got this." },
+        { label: 'Looking after a family member or someone I care about', value: 'caring', affirmation: "Caring for someone takes real strength. Let's get you back on track." },
+        { label: 'Health reasons', value: 'health', affirmation: "Taking time for your health is the right call. Let's focus on what comes next." },
+        { label: 'I was made redundant and took some time before looking again', value: 'redundancy', affirmation: "Redundancy happens to good people. Let's get you back stronger." },
+        { label: 'I chose to take a break', value: 'break', affirmation: 'A deliberate break is nothing to apologise for.' },
+        { label: 'Other reasons', value: 'other', affirmation: 'Whatever the reason — what matters is what comes next.' },
+      ],
+    },
+    {
+      kind: 'choice',
+      question: 'Are you going back to the same kind of work or is this a chance to do something different?',
+      options: [
+        { label: 'Going back to what I did before', value: 'same', affirmation: "Returning to familiar work has real advantages. Let's position you well." },
+        { label: 'Similar work but in a different direction', value: 'similar', affirmation: 'A change within your field is very achievable.' },
+        { label: 'This feels like a chance to do something completely different', value: 'different', affirmation: "Ambitious. Let's plan it properly." },
+      ],
+    },
+    {
+      kind: 'choice',
+      question: 'What feels most daunting about going back?',
+      options: [
+        { label: 'My confidence has taken a knock', value: 'confidence', affirmation: 'Confidence comes back faster than you think once you get going.' },
+        { label: 'My skills or knowledge might be out of date', value: 'skills', affirmation: "Most skills are more current than people fear. Let's check." },
+        { label: "Having to explain why I've been out of work", value: 'explaining', affirmation: 'There is a way to talk about this that works in your favour.' },
+        { label: 'Getting back into a routine', value: 'routine', affirmation: "Structure helps. Let's build that in from the start." },
+        { label: 'Whether employers will take me seriously', value: 'taken_seriously', affirmation: 'Employers hire returners all the time. Framing is everything.' },
+      ],
+    },
+  ],
+  'future-proofing': [
+    {
+      kind: 'text',
+      question: "What's made you start thinking about this?",
+      placeholder: "e.g. My company is talking about cutting jobs / I've been in the same role for years and feel stuck / I want to make sure I'm earning what I should be",
+      affirmation: 'Thanks — that helps us focus.',
+    },
+    {
+      kind: 'text',
+      question: 'What do you do and how long have you been doing it?',
+      placeholder: 'e.g. HGV driver — 15 years / Factory supervisor — 8 years / Office manager — 10 years',
+      affirmation: 'Got it — that experience counts for a lot.',
+    },
+    {
+      kind: 'choice',
+      question: 'What feels most important to focus on?',
+      options: [
+        { label: "Making sure my skills don't become out of date", value: 'skills', affirmation: 'Staying relevant is the smartest long-term move.' },
+        { label: 'Getting better known in my field', value: 'known', affirmation: 'Visibility matters more than most people realise.' },
+        { label: 'Finding out what I should actually be earning', value: 'earning', affirmation: "Many people are underpaid and don't know it. Let's find out." },
+        { label: 'Getting better at managing or leading people', value: 'leading', affirmation: 'Leadership skills open doors at every level.' },
+        { label: 'Having a proper plan for where I’m heading', value: 'plan', affirmation: 'Having a plan changes everything.' },
+        { label: 'I’d like Elevate to help me work out what to focus on', value: 'help_me', affirmation: "That's exactly what we're here for." },
       ],
     },
   ],
 };
 
+/** Quick-pick chips on the final open question. */
 export const FINAL_QUICK_OPTIONS = [
-  'A clearer path for the next 6 months',
-  'A stronger story that opens doors',
-  'A plan that makes progress feel real',
-  'A confidence boost that helps me act now',
+  'Getting more interviews',
+  'Working out what I want to do',
+  'Earning more money',
+  'Feeling more confident',
 ];

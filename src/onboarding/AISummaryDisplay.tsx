@@ -15,14 +15,19 @@ export function AISummaryDisplay({
 }) {
   const theme = useFiasTheme();
 
-  const lines = summary.split('\n').map((line) => line.trim()).filter(Boolean);
-  const body =
-    summary.trim() ||
-    'Based on everything you shared, here is a clear, personalized read on where you are and the strongest next move you can make.';
-  const insight = lines[0] || 'You have real momentum to build on — clarity is your fastest lever right now.';
-  const action = lines[1] || 'Pick the single next step that moves your main priority forward, and do it today.';
+  const lines = summary
+    .split('\n')
+    .map((line) => line.replace(/^\s*[-•\d.]+\s*/, '').trim())
+    .filter(Boolean);
 
-  // Character-by-character typing of the body text (15ms per character).
+  const insight = lines[0] || "You've already made the hardest move — getting clear on what you want.";
+  const action = lines[1] || 'Pick the one thing that matters most right now, and take a single step toward it today.';
+  const rest = lines.slice(2).join('\n').trim();
+  const body =
+    rest ||
+    `Here's what stands out from everything you shared — and the first move that will make the biggest difference.`;
+
+  // Type the body out one character at a time (15ms each).
   const [typedCount, setTypedCount] = useState(0);
 
   useEffect(() => {
@@ -75,11 +80,12 @@ export function AISummaryDisplay({
           position: 'absolute',
           top: 16,
           left: 16,
-          background: '#ffffff',
+          background: '#F3F4F6',
           border: '1px solid #e2e8f0',
           borderRadius: 50,
           padding: '6px 14px',
           fontSize: 13,
+          fontWeight: 600,
           color: '#6B7280',
           cursor: 'pointer',
           zIndex: 20,
@@ -88,9 +94,9 @@ export function AISummaryDisplay({
         ← Back
       </button>
 
-      <div style={{ padding: '20px 20px 120px', maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ padding: '20px', maxWidth: 720, margin: '0 auto', paddingBottom: 120 }}>
         <h2 style={{ margin: '4px 0 16px', fontSize: 22, fontWeight: 800, color: '#0F2554', lineHeight: 1.3 }}>
-          Here's what Elevate sees for you.
+          Here's what we see for you
         </h2>
 
         <p style={{ margin: 0, fontSize: 16, color: '#374151', lineHeight: 1.7, whiteSpace: 'pre-wrap', minHeight: 48 }}>
@@ -98,32 +104,17 @@ export function AISummaryDisplay({
         </p>
 
         {/* Key insight */}
-        <div
-          style={{
-            marginTop: 24,
-            background: 'linear-gradient(135deg, #0F2554, #1e3a6b)',
-            borderRadius: 16,
-            padding: 20,
-          }}
-        >
+        <div style={{ marginTop: 24, background: 'linear-gradient(135deg, #0F2554, #1a3a7a)', borderRadius: 16, padding: 20 }}>
           <div style={{ fontSize: 10, color: '#0AAFAA', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
             KEY INSIGHT
           </div>
-          <p style={{ margin: '8px 0 0', fontSize: 16, color: '#ffffff', fontWeight: 600, lineHeight: 1.6 }}>{insight}</p>
+          <p style={{ margin: '8px 0 0', fontSize: 16, color: '#ffffff', fontWeight: 700, lineHeight: 1.6 }}>{insight}</p>
         </div>
 
-        {/* First action */}
-        <div
-          style={{
-            marginTop: 16,
-            background: '#f0fffe',
-            border: '1.5px solid #0AAFAA',
-            borderRadius: 14,
-            padding: 16,
-          }}
-        >
+        {/* First step */}
+        <div style={{ marginTop: 16, background: '#f0fffe', border: '1.5px solid #0AAFAA', borderRadius: 14, padding: 16 }}>
           <div style={{ fontSize: 10, color: '#0AAFAA', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
-            YOUR FIRST ACTION
+            YOUR FIRST STEP
           </div>
           <p style={{ margin: '8px 0 0', fontSize: 14, color: '#0F2554', lineHeight: 1.6 }}>{action}</p>
         </div>
@@ -145,6 +136,9 @@ export function AISummaryDisplay({
           onClick={onNext}
           style={{
             width: '100%',
+            maxWidth: 460,
+            display: 'block',
+            margin: '0 auto',
             height: 54,
             background: 'linear-gradient(135deg, #0AAFAA, #0891B2)',
             color: '#ffffff',

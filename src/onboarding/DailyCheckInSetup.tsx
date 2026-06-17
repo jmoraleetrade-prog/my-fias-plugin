@@ -1,6 +1,13 @@
 import { usePersistentState, useFiasTheme } from '@fias/arche-sdk';
 
-const TIMES = ['8am', '9am', '12pm', '5pm', '8pm', "I'll set this later"];
+const TIMES = [
+  '7am — morning boost',
+  '8am — before work',
+  '12pm — lunchtime',
+  '6pm — after work',
+  '8pm — evening',
+  'No thanks',
+];
 
 export function DailyCheckInSetup({
   onNext,
@@ -26,10 +33,12 @@ export function DailyCheckInSetup({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        justifyContent: 'center',
         padding: '72px 24px 120px',
         fontFamily: theme.fonts.body,
         color: '#ffffff',
         position: 'relative',
+        boxSizing: 'border-box',
       }}
     >
       <button
@@ -59,13 +68,15 @@ export function DailyCheckInSetup({
         🏠
       </button>
 
-      <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
         <div style={{ fontSize: 48, lineHeight: 1 }} aria-hidden>
           ⏰
         </div>
-        <h2 style={{ margin: '16px 0 0', fontSize: 24, fontWeight: 800, color: '#ffffff' }}>One last thing</h2>
-        <p style={{ margin: '8px 0 0', fontSize: 16, color: '#ffffff', opacity: 0.7, lineHeight: 1.6 }}>
-          When would you like Elevate to check in with you each day?
+        <h2 style={{ margin: '16px 0 0', fontSize: 22, fontWeight: 800, color: '#ffffff', lineHeight: 1.3 }}>
+          When do you want Elevate to check in with you?
+        </h2>
+        <p style={{ margin: '8px 0 0', fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
+          A quick daily check-in keeps your momentum going
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, marginTop: 28 }}>
@@ -78,16 +89,16 @@ export function DailyCheckInSetup({
                 onClick={() => setSelectedTime(time)}
                 style={{
                   background: active ? 'linear-gradient(135deg, #f0fffe, #e6faf9)' : '#ffffff',
-                  borderRadius: 12,
-                  padding: 14,
+                  borderRadius: 14,
+                  padding: '16px 12px',
                   textAlign: 'center',
-                  fontSize: 15,
-                  fontWeight: active ? 600 : 500,
+                  fontSize: 14,
+                  fontWeight: active ? 700 : 600,
                   color: active ? '#0F2554' : '#374151',
-                  border: active ? '2px solid #0AAFAA' : '1.5px solid transparent',
+                  border: active ? '2px solid #0AAFAA' : '2px solid transparent',
                   cursor: 'pointer',
                   fontFamily: theme.fonts.body,
-                  boxShadow: active ? '0 0 0 3px rgba(10,175,170,0.15)' : 'none',
+                  boxShadow: active ? '0 0 0 4px rgba(10,175,170,0.18)' : '0 1px 3px rgba(0,0,0,0.12)',
                   transition: 'all 200ms ease',
                 }}
               >
@@ -105,6 +116,9 @@ export function DailyCheckInSetup({
           disabled={!selectedTime}
           style={{
             width: '100%',
+            maxWidth: 460,
+            display: 'block',
+            margin: '0 auto',
             height: 54,
             background: 'linear-gradient(135deg, #0AAFAA, #0891B2)',
             color: '#ffffff',

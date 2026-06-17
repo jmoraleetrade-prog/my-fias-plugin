@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useFiasTheme } from '@fias/arche-sdk';
-import { BRAND } from './onboardingData';
-import { OnboardingShell } from './OnboardingShell';
 
 const BENEFITS = [
   'Land the job you actually want',
-  'Earn what you’re worth',
-  'Build a career you’re proud of',
+  "Earn what you're worth",
+  "Build a career you're proud of",
 ];
 
+/**
+ * First screen. Full-viewport navy hero, centred, with a staggered fade-and-rise
+ * for each element and a fixed teal gradient button pinned to the bottom edge.
+ * If the user has earlier progress, the bottom button resumes it and a quiet
+ * "Start again" link sits above.
+ */
 export function WelcomeScreen({
   onNext,
-  onHome,
   onContinue,
   onRestart,
   hasResume,
-  onReset,
 }: {
   onNext: () => void;
   onHome: () => void;
@@ -28,147 +30,159 @@ export function WelcomeScreen({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   if (!theme) return null;
 
-  return (
-    <OnboardingShell onHome={onHome} showBack={false} onReset={onReset}>
-      <div
-        style={{
-          minHeight: '100vh',
-          width: '100%',
-          padding: 0,
-          background: '#0F2554',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontFamily: theme.fonts.body,
-          color: '#fff',
-        }}
-      >
-        <style>
-          {`@keyframes fadeInCard { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-            @keyframes buttonPop { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-          `}
-        </style>
+  // Each element fades and slides up in sequence, 100ms apart.
+  const rise = (order: number) => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? 'translateY(0)' : 'translateY(20px)',
+    transition: `opacity 600ms ease ${order * 100}ms, transform 600ms ease ${order * 100}ms`,
+  });
 
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: '#0F2554',
+        fontFamily: theme.fonts.body,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '60px 24px 96px',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+      }}
+    >
+      {/* Bolt with radial glow */}
+      <div style={{ position: 'relative', display: 'grid', placeItems: 'center', ...rise(0) }}>
         <div
           style={{
-            width: '100%',
-            maxWidth: 620,
-            padding: '48px',
-            borderRadius: 24,
-            background: 'rgba(255,255,255,0.15)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.3)',
-            boxShadow: '0 40px 80px rgba(0,0,0,0.18)',
-            display: 'grid',
-            gap: '28px',
-            animation: mounted ? 'fadeInCard 0.8s ease forwards' : 'none',
-            opacity: mounted ? 1 : 0,
+            position: 'absolute',
+            width: 120,
+            height: 120,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(10,175,170,0.15) 0%, transparent 70%)',
+          }}
+          aria-hidden
+        />
+        <span style={{ fontSize: 64, lineHeight: 1, color: '#0AAFAA', position: 'relative' }} aria-hidden>
+          ⚡
+        </span>
+      </div>
+
+      <h1
+        style={{
+          margin: '20px 0 0',
+          fontSize: 52,
+          fontWeight: 800,
+          letterSpacing: '-2px',
+          color: '#ffffff',
+          lineHeight: 1,
+          ...rise(1),
+        }}
+      >
+        Elevate
+      </h1>
+
+      <p
+        style={{
+          margin: '12px 0 0',
+          fontSize: 18,
+          color: 'rgba(255,255,255,0.65)',
+          maxWidth: 280,
+          textAlign: 'center',
+          lineHeight: 1.5,
+          ...rise(2),
+        }}
+      >
+        The career platform that gets you where you want to go
+      </p>
+
+      <div style={{ width: 48, height: 2, background: 'rgba(10,175,170,0.6)', margin: '32px 0', ...rise(3) }} />
+
+      <div style={{ display: 'grid', gap: 16 }}>
+        {BENEFITS.map((benefit, index) => (
+          <div
+            key={benefit}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, ...rise(4 + index) }}
+          >
+            <span
+              style={{
+                flexShrink: 0,
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                background: '#0AAFAA',
+                color: '#0F2554',
+                display: 'grid',
+                placeItems: 'center',
+                fontSize: 13,
+                fontWeight: 800,
+              }}
+              aria-hidden
+            >
+              ✓
+            </span>
+            <span style={{ fontSize: 16, color: '#ffffff', fontWeight: 500 }}>{benefit}</span>
+          </div>
+        ))}
+      </div>
+
+      {hasResume ? (
+        <button
+          type="button"
+          onClick={onRestart}
+          style={{
+            position: 'fixed',
+            bottom: 80,
+            left: 0,
+            right: 0,
+            margin: '0 auto',
+            background: 'transparent',
+            border: 'none',
+            color: 'rgba(255,255,255,0.6)',
+            fontSize: 14,
+            fontWeight: 600,
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            fontFamily: theme.fonts.body,
+            ...rise(7),
           }}
         >
-          <div style={{ display: 'grid', gap: '18px', textAlign: 'center' }}>
-            <div style={{ fontSize: 48, lineHeight: 1 }}>{'🚀'}</div>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: 52,
-                fontWeight: 700,
-                letterSpacing: '-2px',
-                color: '#ffffff',
-              }}
-            >
-              Elevate
-            </h1>
-            <p style={{ margin: 0, fontSize: 18, opacity: 0.8, lineHeight: 1.7 }}>
-              The career platform that gets you where you want to go
-            </p>
-          </div>
+          Start again
+        </button>
+      ) : null}
 
-          <div style={{ display: 'grid', gap: '14px' }}>
-            {BENEFITS.map((benefit) => (
-              <div key={benefit} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 16, fontWeight: 600, color: '#ffffff' }}>
-                <span style={{ minWidth: 24, display: 'inline-grid', placeItems: 'center' }}>✅</span>
-                <span>{benefit}</span>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', borderRadius: 999 }} />
-
-          {hasResume ? (
-            <div style={{ display: 'grid', gap: '16px' }}>
-              <button
-                type="button"
-                onClick={onContinue}
-                style={{
-                  width: '100%',
-                  padding: '16px 32px',
-                  borderRadius: 50,
-                  border: 'none',
-                  background: '#ffffff',
-                  color: '#667eea',
-                  fontWeight: 700,
-                  fontSize: 18,
-                  cursor: 'pointer',
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                  animation: 'buttonPop 0.5s ease',
-                }}
-              >
-                Continue where you left off
-              </button>
-              <button
-                type="button"
-                onClick={onRestart}
-                style={{
-                  width: '100%',
-                  padding: '16px 32px',
-                  borderRadius: 50,
-                  border: '1px solid rgba(255,255,255,0.35)',
-                  background: 'rgba(255,255,255,0.08)',
-                  color: '#ffffff',
-                  fontWeight: 700,
-                  fontSize: 18,
-                  cursor: 'pointer',
-                  animation: 'buttonPop 0.55s ease',
-                }}
-              >
-                Start again
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={onNext}
-              style={{
-                width: '100%',
-                padding: '16px 32px',
-                borderRadius: 50,
-                border: 'none',
-                background: '#ffffff',
-                color: '#667eea',
-                fontWeight: 700,
-                fontSize: 18,
-                cursor: 'pointer',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
-                animation: 'buttonPop 0.5s ease',
-              }}
-              onMouseEnter={(event) => {
-                (event.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(event) => {
-                (event.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
-              }}
-            >
-              Start my career journey →
-            </button>
-          )}
-        </div>
-      </div>
-    </OnboardingShell>
+      {/* Fixed bottom button */}
+      <button
+        type="button"
+        onClick={hasResume ? onContinue : onNext}
+        style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 64,
+          border: 'none',
+          borderRadius: '20px 20px 0 0',
+          background: 'linear-gradient(135deg, #0AAFAA, #0891B2)',
+          color: '#ffffff',
+          fontSize: 18,
+          fontWeight: 700,
+          cursor: 'pointer',
+          fontFamily: theme.fonts.body,
+          boxShadow: '0 -8px 30px rgba(10,175,170,0.25)',
+          ...rise(8),
+        }}
+      >
+        {hasResume ? 'Pick up where you left off →' : 'Start my career journey →'}
+      </button>
+    </div>
   );
 }

@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
 import { usePersistentState, useFiasTheme } from '@fias/arche-sdk';
+import { FINAL_QUICK_OPTIONS } from './onboardingData';
 import { OnboardingScaffold, ContinueBar } from './OnboardingScaffold';
-
-const QUICK_CHIPS = [
-  'Help me get more interviews',
-  'Help me find direction',
-  'Help me earn more',
-  'Help me feel confident',
-];
 
 export function OpenFinalQuestion({
   onNext,
@@ -20,6 +14,7 @@ export function OpenFinalQuestion({
   onReset?: () => void;
 }) {
   const theme = useFiasTheme();
+  const [name] = usePersistentState('user-name', '');
   const [selectedOption, setSelectedOption] = usePersistentState<string | null>('final-selection', null);
   const [freeText, setFreeText] = usePersistentState('final-free-text', '');
   const [draft, setDraft] = useState(freeText);
@@ -30,6 +25,7 @@ export function OpenFinalQuestion({
 
   if (!theme) return null;
 
+  const firstName = (name || '').trim().split(/\s+/)[0];
   const canContinue = Boolean(selectedOption || draft.trim());
 
   const handleContinue = () => {
@@ -39,42 +35,34 @@ export function OpenFinalQuestion({
   };
 
   return (
-    <OnboardingScaffold
-      onHome={onHome}
-      onBack={onBack}
-      progressPercent={100}
-      progressLabel="Final question"
-    >
+    <OnboardingScaffold onHome={onHome} onBack={onBack} progressPercent={100} progressLabel="Last question">
       <h2
         style={{
           margin: 0,
-          padding: '16px 20px 12px',
+          padding: '16px 20px 14px',
           fontSize: 22,
           fontWeight: 800,
           color: '#0F2554',
           lineHeight: 1.3,
         }}
       >
-        If Elevate could do one thing that genuinely changes your career, what would it be?
+        {firstName ? `Last one ${firstName} — ` : 'Last one — '}what's the one thing you most want help with?
       </h2>
 
       <div style={{ padding: '0 20px 150px' }}>
-        {/* Quick-select pill chips */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
-          {QUICK_CHIPS.map((chip) => {
+          {FINAL_QUICK_OPTIONS.map((chip) => {
             const isActive = selectedOption === chip;
             return (
               <button
                 key={chip}
                 type="button"
-                onClick={() => {
-                  setSelectedOption(isActive ? null : chip);
-                }}
+                onClick={() => setSelectedOption(isActive ? null : chip)}
                 style={{
                   border: isActive ? '1.5px solid #0AAFAA' : '1.5px solid #e2e8f0',
                   borderRadius: 50,
-                  padding: '8px 16px',
-                  fontSize: 13,
+                  padding: '10px 18px',
+                  fontSize: 14,
                   fontWeight: isActive ? 600 : 500,
                   background: isActive ? 'linear-gradient(135deg, #f0fffe, #e6faf9)' : '#ffffff',
                   color: isActive ? '#0AAFAA' : '#374151',
@@ -95,7 +83,7 @@ export function OpenFinalQuestion({
             setDraft(event.target.value);
             if (event.target.value.trim()) setSelectedOption(null);
           }}
-          placeholder="Or tell us in your own words…"
+          placeholder="Something else — tell us in your own words"
           style={{
             width: '100%',
             boxSizing: 'border-box',
