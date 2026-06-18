@@ -3,12 +3,15 @@ import { usePersistentState, useFiasTheme } from '@fias/arche-sdk';
 import { FINAL_QUICK_OPTIONS } from './onboardingData';
 import { OnboardingScaffold, ContinueBar } from './OnboardingScaffold';
 
+/** The neurodivergent quick-select chip — selecting it sets profile.neurodivergent. */
+const NEURO_CHIP = 'Help me navigate job searching as a neurodivergent person';
+
 export function OpenFinalQuestion({
   onNext,
   onHome,
   onBack,
 }: {
-  onNext: (payload: { selection: string; text: string }) => void;
+  onNext: (payload: { selection: string; text: string; neurodivergent: boolean }) => void;
   onHome: () => void;
   onBack: () => void;
   onReset?: () => void;
@@ -17,7 +20,10 @@ export function OpenFinalQuestion({
   const [name] = usePersistentState('user-name', '');
   const [selectedOption, setSelectedOption] = usePersistentState<string | null>('final-selection', null);
   const [freeText, setFreeText] = usePersistentState('final-free-text', '');
+  const [, setNeurodivergent] = usePersistentState('neurodivergent', false);
   const [draft, setDraft] = useState(freeText);
+
+  const quickOptions = [...FINAL_QUICK_OPTIONS, NEURO_CHIP];
 
   useEffect(() => {
     setDraft(freeText);
@@ -31,8 +37,10 @@ export function OpenFinalQuestion({
   const handleContinue = () => {
     if (!canContinue) return;
     const text = draft.trim();
+    const isNeuro = selectedOption === NEURO_CHIP;
     setFreeText(text);
-    onNext({ selection: selectedOption ?? '', text });
+    setNeurodivergent(isNeuro);
+    onNext({ selection: selectedOption ?? '', text, neurodivergent: isNeuro });
   };
 
   return (
@@ -52,13 +60,16 @@ export function OpenFinalQuestion({
 
       <div style={{ padding: '0 20px 150px' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
-          {FINAL_QUICK_OPTIONS.map((chip) => {
+          {quickOptions.map((chip) => {
             const isActive = selectedOption === chip;
             return (
               <button
                 key={chip}
                 type="button"
-                onClick={() => setSelectedOption(isActive ? null : chip)}
+                onClick={() => {
+                  setSelectedOption(isActive ? null : chip);
+                  setNeurodivergent(!isActive && chip === NEURO_CHIP);
+                }}
                 style={{
                   border: isActive ? '1.5px solid #0AAFAA' : '1.5px solid #e2e8f0',
                   borderRadius: 50,
